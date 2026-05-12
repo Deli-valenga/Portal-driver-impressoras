@@ -524,3 +524,123 @@ a { color: inherit; }
   .hero-search input { min-height: 58px; font-size: 14px; }
   .summary-grid { grid-template-columns: 1fr; }
 }
+/* Estilos para os Radio Buttons de Recursos */
+.features-group {
+  background-color: #f8f9fa; /* Um fundo cinza bem claro para destacar */
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 16px;
+}
+
+.features-group > label {
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: block;
+  color: #333;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.feature-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.feature-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.feature-label {
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.radio-options {
+  display: flex;
+  gap: 16px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.radio-label input[type="radio"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: #0d6efd; /* Altere para a cor primária do seu sistema */
+}
+/* Estilos para os recursos dentro do Card */
+.card-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 10px 0;
+  border-top: 1px dashed #e2e8f0;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.feature-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* Cor para SIM (Verde) */
+.feature-yes {
+  background-color: #d1fae5;
+  color: #01c28b;
+}
+
+/* Cor para NÃO (Vermelho/Cinza) */
+.feature-no {
+  background-color: #fee2e2;
+  color: #991b1b;
+  opacity: 0.7; /* Deixa um pouco mais apagado para não chamar tanta atenção */
+}
+/* --- CORREÇÃO DOS BOTÕES DE RÁDIO (SIM/NÃO) --- */
+
+/* 1. Impede que a bolinha do rádio estique para 100% da tela e remove a altura de 46px */
+.form-group input[type="radio"] {
+  width: 18px; 
+  min-height: auto;
+  margin: 0;
+  accent-color: var(--orange); /* Usa a cor principal do seu tema */
+  cursor: pointer;
+}
+
+/* 2. Coloca as opções "Sim" e "Não" lado a lado em uma linha */
+.radio-group {
+  display: flex;
+  gap: 20px; /* Espaçamento entre a opção Sim e a opção Não */
+  align-items: center;
+  min-height: 46px; /* Mantém a altura total alinhada com os outros campos de texto */
+}
+
+/* 3. Alinha a bolinha perfeitamente com o texto (Sim/Não) */
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Espaço entre a bolinha e o texto */
+  font-weight: 600; 
+  font-size: 15px;
+  color: var(--ink);
+  cursor: pointer;
+  margin-bottom: 0; /* Remove a margem padrão das labels do form-group */
+}

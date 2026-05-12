@@ -199,6 +199,8 @@ async function deletePrinter(id) {
 function getFormPayload() {
   const marca = elements.fieldMarca.value.trim();
   const modelo = elements.fieldModelo.value.trim();
+  const Qr = elements.fieldQr.value.trim();
+  const NFe = elements.fieldNFe.value.trim();
 
   if (!marca) {
     showToast('Informe a marca da impressora.', 'error');
@@ -212,6 +214,17 @@ function getFormPayload() {
     return null;
   }
 
+   if (!modelo) {
+    showToast('Informe o modelo da impressora.', 'error');
+    elements.fieldModelo.focus();
+    return null;
+  }
+
+  // Pega os valores dos radio buttons (ou define um padrão se nada estiver marcado)
+  const imprimeComandas = document.querySelector('input[name="imprimeComandas"]:checked')?.value
+  const imprimeNfe = document.querySelector('input[name="imprimeNfe"]:checked')?.value
+  const imprimeQr = document.querySelector('input[name="imprimeQr"]:checked')?.value
+
   return {
     marca,
     modelo,
@@ -220,6 +233,10 @@ function getFormPayload() {
     status: elements.fieldStatus.value,
     observacoes: elements.fieldObservacoes.value.trim(),
     ativo: elements.fieldAtivo.checked,
+    // Adicionando os novos campos no payload
+    imprimeComandas,
+    imprimeNfe,
+    imprimeQr
   };
 }
 
@@ -241,8 +258,11 @@ function createPrinterCard(printer) {
   const statusClass = getStatusClass(printer.status);
   const notes = stripHtml(printer.observacoes || '');
   const visibleLabel = printer.ativo === false ? '<span class="badge"><i class="fa-solid fa-eye-slash"></i> Oculto</span>' : '';
+  const imprimeComandas = printer.imprimeComandas || 'Não';
+  const imprimeNfe = printer.imprimeNfe || 'Não';
+  const imprimeQr = printer.imprimeQr || 'Não';
 
-  return `
+return `
     <article class="printer-card" data-id="${escapeHtml(printer.id)}">
       <div class="card-top">
         <div class="printer-brand-icon" aria-hidden="true"><i class="fa-solid fa-print"></i></div>
@@ -256,6 +276,10 @@ function createPrinterCard(printer) {
         ${printer.tipo ? `<span class="badge"><i class="fa-solid fa-tag"></i> ${escapeHtml(printer.tipo)}</span>` : ''}
         ${printer.conexao ? `<span class="badge"><i class="fa-solid fa-plug"></i> ${escapeHtml(printer.conexao)}</span>` : ''}
         ${visibleLabel}
+        
+        <span class="badge"><i class="fa-solid fa-receipt"></i> Comandas: ${escapeHtml(imprimeComandas)}</span>
+        <span class="badge"><i class="fa-solid fa-file-invoice"></i> NFe: ${escapeHtml(imprimeNfe)}</span>
+        <span class="badge"><i class="fa-solid fa-qrcode"></i> QR: ${escapeHtml(imprimeQr)}</span>
       </div>
       ${notes ? `<p class="card-notes">${escapeHtml(notes)}</p>` : '<p class="card-notes">Sem observações técnicas cadastradas.</p>'}
       <div class="card-actions">
@@ -319,6 +343,17 @@ function fillFormForEdit(id) {
   elements.fieldStatus.value = printer.status || 'Homologada';
   elements.fieldObservacoes.value = stripHtml(printer.observacoes || '');
   elements.fieldAtivo.checked = printer.ativo !== false;
+
+  // Selecionar os radio buttons corretos baseados nos dados salvos
+  const cmdRadio = document.querySelector(`input[name="imprimeComandas"][value="${printer.imprimeComandas || 'Não'}"]`);
+  if (cmdRadio) cmdRadio.checked = true;
+
+  const nfeRadio = document.querySelector(`input[name="imprimeNfe"][value="${printer.imprimeNfe || 'Não'}"]`);
+  if (nfeRadio) nfeRadio.checked = true;
+
+  const qrRadio = document.querySelector(`input[name="imprimeQr"][value="${printer.imprimeQr || 'Não'}"]`);
+  if (qrRadio) qrRadio.checked = true;
+
   elements.formTitle.textContent = 'Editar impressora';
   elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Atualizar modelo';
   document.getElementById('cadastro-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
