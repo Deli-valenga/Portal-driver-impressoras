@@ -553,7 +553,7 @@ header
 }
 
 .background-header .main-nav .menu-trigger.active span:before {
-  background-color: #1e1e1e;
+  background-color: #bb7000;
 }
 
 .header-area .main-nav .menu-trigger.active span:after {
@@ -561,7 +561,7 @@ header
   -ms-transform: translateY(-6px) translateX(1px) rotate(-45deg);
   -webkit-transform: translateY(-6px) translateX(1px) rotate(-45deg);
   transform: translateY(-6px) translateX(1px) rotate(-45deg);
-  background-color: #1e1e1e;
+  background-color: #ff912b;
 }
 
 .background-header .main-nav .menu-trigger.active span:after {
@@ -735,10 +735,11 @@ Banner Style
 }
 
 .main-banner .top-text h6 {
-  color: #ffffff;
+  color: #22e1faaf;
   font-size: 15px;
   font-weight: 500;
   text-transform: uppercase;
+  background-color: rgba(8, 29, 68, 0.5);
 }
 
 .main-banner .top-text h2 {
@@ -1451,7 +1452,7 @@ Category Post
 
 .category-post .naccs .menu div.active,
 .category-post .naccs .menu div.active .thumb {
-  background-color: #2b2d42;
+  background-color: #2033ff;
 }
 
 .category-post ul.nacc {
