@@ -258,11 +258,13 @@ function createPrinterCard(printer) {
   const statusClass = getStatusClass(printer.status);
   const notes = stripHtml(printer.observacoes || '');
   const visibleLabel = printer.ativo === false ? '<span class="badge"><i class="fa-solid fa-eye-slash"></i> Oculto</span>' : '';
+
+  // LÊ DOS DADOS SALVOS NO OBJETO
   const imprimeComandas = printer.imprimeComandas || 'Não';
   const imprimeNfe = printer.imprimeNfe || 'Não';
   const imprimeQr = printer.imprimeQr || 'Não';
 
-return `
+  return `
     <article class="printer-card" data-id="${escapeHtml(printer.id)}">
       <div class="card-top">
         <div class="printer-brand-icon" aria-hidden="true"><i class="fa-solid fa-print"></i></div>
@@ -277,9 +279,9 @@ return `
         ${printer.conexao ? `<span class="badge"><i class="fa-solid fa-plug"></i> ${escapeHtml(printer.conexao)}</span>` : ''}
         ${visibleLabel}
         
-        <span class="badge"><i class="fa-solid fa-receipt"></i> Comandas: ${escapeHtml(imprimeComandas)}</span>
-        <span class="badge"><i class="fa-solid fa-file-invoice"></i> NFe: ${escapeHtml(imprimeNfe)}</span>
-        <span class="badge"><i class="fa-solid fa-qrcode"></i> QR: ${escapeHtml(imprimeQr)}</span>
+        <span class="badge ${imprimeComandas === 'Sim' ? 'feature-yes' : 'feature-no'}">Cmd: ${imprimeComandas}</span>
+        <span class="badge ${imprimeNfe === 'Sim' ? 'feature-yes' : 'feature-no'}">NFe: ${imprimeNfe}</span>
+        <span class="badge ${imprimeQr === 'Sim' ? 'feature-yes' : 'feature-no'}">QR: ${imprimeQr}</span>
       </div>
       ${notes ? `<p class="card-notes">${escapeHtml(notes)}</p>` : '<p class="card-notes">Sem observações técnicas cadastradas.</p>'}
       <div class="card-actions">
@@ -354,6 +356,15 @@ function fillFormForEdit(id) {
   const qrRadio = document.querySelector(`input[name="imprimeQr"][value="${printer.imprimeQr || 'Não'}"]`);
   if (qrRadio) qrRadio.checked = true;
 
+  const cmdRadio = document.querySelector(`input[name="imprimeComandas"][value="${printer.imprimeComandas || 'Não'}"]`);
+  if (cmdRadio) cmdRadio.checked = true;
+
+  const nfeRadio = document.querySelector(`input[name="imprimeNfe"][value="${printer.imprimeNfe || 'Não'}"]`);
+  if (nfeRadio) nfeRadio.checked = true;
+
+  const qrRadio = document.querySelector(`input[name="imprimeQr"][value="${printer.imprimeQr || 'Não'}"]`);
+  if (qrRadio) qrRadio.checked = true;
+
   elements.formTitle.textContent = 'Editar impressora';
   elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Atualizar modelo';
   document.getElementById('cadastro-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -369,6 +380,14 @@ function resetForm() {
   elements.fieldAtivo.checked = true;
   elements.formTitle.textContent = 'Adicionar impressora';
   elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar modelo';
+  // VOLTA PARA O PADRÃO NÃO
+  document.querySelector('input[name="imprimeComandas"][value="Não"]').checked = true;
+  document.querySelector('input[name="imprimeNfe"][value="Não"]').checked = true;
+  document.querySelector('input[name="imprimeQr"][value="Não"]').checked = true;
+  
+  elements.formTitle.textContent = 'Adicionar impressora';
+  elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar modelo';
+}
 }
 
 function setLoading(isLoading) {
