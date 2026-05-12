@@ -199,8 +199,6 @@ async function deletePrinter(id) {
 function getFormPayload() {
   const marca = elements.fieldMarca.value.trim();
   const modelo = elements.fieldModelo.value.trim();
-  const Qr = elements.fieldQr.value.trim();
-  const NFe = elements.fieldNFe.value.trim();
 
   if (!marca) {
     showToast('Informe a marca da impressora.', 'error');
@@ -214,11 +212,21 @@ function getFormPayload() {
     return null;
   }
 
-   if (!modelo) {
-    showToast('Informe o modelo da impressora.', 'error');
-    elements.fieldModelo.focus();
-    return null;
-  }
+  // CAPTURA DOS NOVOS CAMPOS
+  return {
+    marca,
+    modelo,
+    tipo: elements.fieldTipo.value,
+    conexao: elements.fieldConexao.value,
+    status: elements.fieldStatus.value,
+    observacoes: elements.fieldObservacoes.value.trim(),
+    ativo: elements.fieldAtivo.checked,
+    // Aqui pegamos o valor marcado no formulário
+    imprimeComandas: document.querySelector('input[name="imprimeComandas"]:checked')?.value || 'Não',
+    imprimeNfe: document.querySelector('input[name="imprimeNfe"]:checked')?.value || 'Não',
+    imprimeQr: document.querySelector('input[name="imprimeQr"]:checked')?.value || 'Não'
+  };
+}
 
   // Pega os valores dos radio buttons (ou define um padrão se nada estiver marcado)
   const imprimeComandas = document.querySelector('input[name="imprimeComandas"]:checked')?.value
