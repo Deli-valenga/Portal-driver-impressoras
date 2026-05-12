@@ -1411,7 +1411,7 @@ tbody tr:last-child td {
   }
 }
 
-.printer-card {
+.printer-card-homo {
   background-color: #c06500;
   width: 100%; /* Isso garante que ele ocupe toda a coluna */
   max-width: none; /* Tira qualquer limite de largura máxima */
@@ -1424,12 +1424,12 @@ tbody tr:last-child td {
   font-family: 'Sans-serif', sans-serif;
   transition: transform 0.2s;
 }
-.printer-card:hover {
+.printer-card-homo:hover {
   transform: translateY(-5px);
 }
 
 /* --- TÍTULO E SUBTÍTULO --- */
-.card-header {
+.card-header-homo {
   text-align: center;
   margin-bottom: 25px;
   border-bottom: 2px solid rgb(16, 74, 150);
