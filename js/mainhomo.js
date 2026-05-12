@@ -221,30 +221,9 @@ function getFormPayload() {
     status: elements.fieldStatus.value,
     observacoes: elements.fieldObservacoes.value.trim(),
     ativo: elements.fieldAtivo.checked,
-    // Aqui pegamos o valor marcado no formulário
     imprimeComandas: document.querySelector('input[name="imprimeComandas"]:checked')?.value || 'Não',
     imprimeNfe: document.querySelector('input[name="imprimeNfe"]:checked')?.value || 'Não',
     imprimeQr: document.querySelector('input[name="imprimeQr"]:checked')?.value || 'Não'
-  };
-}
-
-  // Pega os valores dos radio buttons (ou define um padrão se nada estiver marcado)
-  const imprimeComandas = document.querySelector('input[name="imprimeComandas"]:checked')?.value
-  const imprimeNfe = document.querySelector('input[name="imprimeNfe"]:checked')?.value
-  const imprimeQr = document.querySelector('input[name="imprimeQr"]:checked')?.value
-
-  return {
-    marca,
-    modelo,
-    tipo: elements.fieldTipo.value,
-    conexao: elements.fieldConexao.value,
-    status: elements.fieldStatus.value,
-    observacoes: elements.fieldObservacoes.value.trim(),
-    ativo: elements.fieldAtivo.checked,
-    // Adicionando os novos campos no payload
-    imprimeComandas,
-    imprimeNfe,
-    imprimeQr
   };
 }
 
@@ -364,15 +343,6 @@ function fillFormForEdit(id) {
   const qrRadio = document.querySelector(`input[name="imprimeQr"][value="${printer.imprimeQr || 'Não'}"]`);
   if (qrRadio) qrRadio.checked = true;
 
-  const cmdRadio = document.querySelector(`input[name="imprimeComandas"][value="${printer.imprimeComandas || 'Não'}"]`);
-  if (cmdRadio) cmdRadio.checked = true;
-
-  const nfeRadio = document.querySelector(`input[name="imprimeNfe"][value="${printer.imprimeNfe || 'Não'}"]`);
-  if (nfeRadio) nfeRadio.checked = true;
-
-  const qrRadio = document.querySelector(`input[name="imprimeQr"][value="${printer.imprimeQr || 'Não'}"]`);
-  if (qrRadio) qrRadio.checked = true;
-
   elements.formTitle.textContent = 'Editar impressora';
   elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Atualizar modelo';
   document.getElementById('cadastro-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -386,16 +356,19 @@ function resetForm() {
   elements.fieldConexao.value = 'USB';
   elements.fieldStatus.value = 'Homologada';
   elements.fieldAtivo.checked = true;
-  elements.formTitle.textContent = 'Adicionar impressora';
-  elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar modelo';
+  
   // VOLTA PARA O PADRÃO NÃO
-  document.querySelector('input[name="imprimeComandas"][value="Não"]').checked = true;
-  document.querySelector('input[name="imprimeNfe"][value="Não"]').checked = true;
-  document.querySelector('input[name="imprimeQr"][value="Não"]').checked = true;
+  const cmdRadio = document.querySelector('input[name="imprimeComandas"][value="Não"]');
+  if (cmdRadio) cmdRadio.checked = true;
+
+  const nfeRadio = document.querySelector('input[name="imprimeNfe"][value="Não"]');
+  if (nfeRadio) nfeRadio.checked = true;
+
+  const qrRadio = document.querySelector('input[name="imprimeQr"][value="Não"]');
+  if (qrRadio) qrRadio.checked = true;
   
   elements.formTitle.textContent = 'Adicionar impressora';
   elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar modelo';
-}
 }
 
 function setLoading(isLoading) {
