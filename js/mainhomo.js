@@ -140,36 +140,28 @@ async function loadPrinters() {
     renderBrandSuggestions();
   }
 }
+
 async function savePrinter() {
   try {
-    const marca = document.getElementById('fieldMarca').value.trim();
-    const modelo = document.getElementById('fieldModelo').value.trim();
+    // 1. Coleta e Valida os dados usando a função que você já tem no arquivo
+    const payload = getFormPayload();
+    if (!payload) return; // Se retornar null (campos vazios), para aqui.
 
-    const impressoraExistente = allPrinters.find(p =>
-      (p.marca || '').toLowerCase() === marca.toLowerCase() &&
-      (p.modelo || '').toLowerCase() === modelo.toLowerCase()
+    setSaving(true); // Ativa o efeito visual de "Salvando..."
+
+    // 2. Define se é uma edição ou um novo cadastro
+    const campoId = elements.fieldId.value;
+    
+    // Verifica se já existe uma impressora igual para evitar duplicados
+    const impressoraExistente = allPrinters.find(p => 
+      (p.marca || '').toLowerCase() === payload.marca.toLowerCase() && 
+      (p.modelo || '').toLowerCase() === payload.modelo.toLowerCase()
     );
 
-    const campoId = document.getElementById('fieldId').value;
+    // Prioriza o ID da existente ou o ID que está no campo oculto do formulário
     const id = impressoraExistente ? impressoraExistente.id : campoId;
 
- // 4. MONTAR O PACOTE DE DADOS
-    const payload = {
-      marca,
-      modelo,
-      tipo: document.getElementById('fieldTipo').value,
-      conexao: document.getElementById('fieldConexao').value,
-      status: document.getElementById('fieldStatus').value,
-      observacoes: document.getElementById('fieldObservacoes') ? document.getElementById('fieldObservacoes').value.trim() : '',
-      
-      // Enviando como True ou False corretamente
-      imprimeComandas: document.querySelector('input[name="imprimeComandas"]:checked')?.value === 'Sim',
-      imprimeNfe: document.querySelector('input[name="imprimeNfe"]:checked')?.value === 'Sim',
-      imprimeQr: document.querySelector('input[name="imprimeQr"]:checked')?.value === 'Sim'
-    };
-
-    // A MÁGICA DO SUPABASE ACONTECE AQUI
-    // Se tem ID, edita usando a regra do Supabase (?id=eq.NUMERO). Se não, cadastra normal.
+    // 3. Configura a comunicação com o Supabase
     const url = id ? `${API_ENDPOINT}?id=eq.${id}` : API_ENDPOINT;
     const metodo = id ? 'PATCH' : 'POST';
 
@@ -177,26 +169,30 @@ async function savePrinter() {
       method: metodo,
       headers: {
         'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY, // O crachá de acesso do Supabase
-        'Authorization': `Bearer ${SUPABASE_KEY}` // Confirmação de segurança
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=representation'
       },
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      const errorData = await response.json(); // Tenta ler a mensagem exata do banco
+      const errorData = await response.json();
       console.error("ERRO DETALHADO DO SUPABASE:", errorData);
-      throw new Error(`Erro ${response.status}: ${errorData.message || errorData.details || 'Falha ao salvar'}`);
+      throw new Error(errorData.message || 'Erro ao comunicar com o banco');
     }
 
-    alert(id ? 'Dados da impressora atualizados!' : 'Novo modelo de impressora cadastrad, obrigado!!');
+    // 4. Sucesso!
+    showToast(id ? 'Dados atualizados com sucesso!' : 'Impressora cadastrada com sucesso!', 'success');
 
-    await loadPrinters();
-    resetForm();
+    await loadPrinters(); // Recarrega a lista do banco
+    resetForm();          // Limpa o formulário
 
   } catch (error) {
-    console.error("ERRO AO SALVAR NO SUPABASE:", error);
-    alert('Erro ao salvar. Verifique o Console (F12).');
+    console.error("ERRO AO SALVAR:", error);
+    showToast('Erro ao salvar no banco de dados.', 'error');
+  } finally {
+    setSaving(false); // Volta o botão ao estado normal
   }
 }
 
