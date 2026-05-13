@@ -313,6 +313,29 @@ function createPrinterCard(printer) {
     </article>`;
 }
 
+function renderPrinters() {
+  const filtered = getFilteredPrinters();
+
+  // 1. Atualiza o texto do contador (ex: "2 modelos encontrados")
+  if (elements.resultsCount) {
+    elements.resultsCount.textContent = filtered.length === 1 
+      ? '1 modelo encontrado' 
+      : `${filtered.length} modelos encontrados`;
+  }
+
+  // 2. Controla o estado vazio (se não houver nada, mostra o ícone de caixa vazia)
+  const hasResults = filtered.length > 0;
+  if (elements.emptyState) elements.emptyState.hidden = hasResults;
+  if (elements.printersGrid) elements.printersGrid.style.display = hasResults ? 'grid' : 'none';
+
+  // 3. Renderiza os cards usando a função createPrinterCard que você já tem
+  if (elements.printersGrid) {
+    elements.printersGrid.innerHTML = filtered
+      .map(printer => createPrinterCard(printer))
+      .join('');
+  }
+}
+
 function getFilteredPrinters() {
   const query = currentSearch.toLowerCase();
   let list = [...allPrinters];
