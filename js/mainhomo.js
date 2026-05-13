@@ -108,13 +108,19 @@ async function loadPrinters() {
     const result = await response.json();
     allPrinters = Array.isArray(result.data) ? result.data : [];
     usingLocalFallback = false;
-  } catch (error) {
-    usingLocalFallback = true;
-    allPrinters = readLocalPrinters();
-    if (!allPrinters.length) {
-      allPrinters = getInitialExamples();
-      persistLocalPrinters();
-    }
+  } } catch (error) {
+    // 1. VAMOS IMPRIMIR O ERRO REAL NO CONSOLE:
+    console.error('MOTIVO DA FALHA NA API:', error); 
+    
+    // 2. VAMOS COMENTAR O FALLBACK PARA FORÇAR O ERRO A APARECER:
+    // usingLocalFallback = true;
+    // allPrinters = readLocalPrinters();
+    // if (!allPrinters.length) {
+    //   allPrinters = getInitialExamples();
+    //   persistLocalPrinters();
+    // }
+    // console.info('Usando armazenamento local temporário para desenvolvimento.', error);
+  } finally {
     console.info('Usando armazenamento local temporário para desenvolvimento.', error);
   } finally {
     setLoading(false);
