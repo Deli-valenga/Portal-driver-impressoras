@@ -1539,40 +1539,63 @@ ul.nacc li {
   border-bottom: 1px solid rgb(68, 44, 0) !important; 
 }
 /* =========================================
-   DESTAQUE ESPECIAL - SOFTWARE DELI
+   DESTAQUE MÁXIMO - SOFTWARE DELI
    ========================================= */
 .card-deli-destaque {
-  border: 2px solid #f59e0b !important; /* Borda laranja chamativa */
-  background: linear-gradient(to bottom right, #fffbeb, #ffffff) !important; /* Fundo levemente amarelado/dourado */
-  box-shadow: 0 8px 16px rgba(245, 158, 11, 0.15) !important;
+  border: 3px solid #f59e0b !important; /* Borda mais grossa e forte */
+  background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%) !important; /* Fundo mais amarelado */
+  box-shadow: 0 12px 24px rgba(245, 158, 11, 0.25) !important; /* Sombra maior e colorida */
   position: relative;
+  transform: scale(1.03); /* Deixa o card fisicamente um pouco maior que os outros */
+  z-index: 2; /* Garante que não é sobreposto por nada */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Etiqueta de "Principal" que flutua no topo do card */
+/* Efeito ao passar o rato (hover) no card em destaque */
+.card-deli-destaque:hover {
+  transform: scale(1.05);
+  box-shadow: 0 16px 32px rgba(245, 158, 11, 0.35) !important;
+}
+
+/* Etiqueta com animação de "pulso" para chamar muita atenção */
 .card-deli-destaque::before {
-  content: "⭐ Sistema Principal";
+  content: "⭐ SISTEMA PRINCIPAL ⭐";
   position: absolute;
-  top: -14px;
-  right: 16px;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%); /* Centraliza a etiqueta no topo perfeitamente */
   background-color: #f59e0b;
   color: #fff;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 700;
+  padding: 6px 18px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
   z-index: 10;
+  animation: pulsoDestaque 2s infinite; /* Ativa a animação criada abaixo */
 }
 
-/* Faz o botão de download desse card ficar laranja também para combinar */
+/* Criação da animação do pulso (brilho a expandir) */
+@keyframes pulsoDestaque {
+  0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+  70% { box-shadow: 0 0 0 12px rgba(245, 158, 11, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+}
+
+/* Botão de download ainda mais destacado e com texto um pouco maior */
 .card-deli-destaque .btn-download {
   background-color: #f59e0b !important;
   color: #fff !important;
   border: none !important;
+  font-weight: bold;
+  font-size: 1.05rem; /* Texto maior */
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3) !important;
 }
 
 .card-deli-destaque .btn-download:hover {
   background-color: #d97706 !important;
+  transform: translateY(-2px);
 }
