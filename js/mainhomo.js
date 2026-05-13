@@ -189,7 +189,7 @@ async function savePrinter() {
       throw new Error(`Erro ${response.status}: ${errorData.message || errorData.details || 'Falha ao salvar'}`);
     }
 
-    alert(id ? 'Dados atualizados no Supabase!' : 'Novo modelo cadastrado no Supabase!');
+    alert(id ? 'Dados da impressora atualizados!' : 'Novo modelo de impressora cadastrad, obrigado!!');
 
     await loadPrinters();
     resetForm();
