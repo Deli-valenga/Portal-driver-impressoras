@@ -125,36 +125,36 @@ async function loadPrinters() {
 }
 
 async function savePrinter() {
-  const marca = document.getElementById('fieldMarca').value.trim();
-  const modelo = document.getElementById('fieldModelo').value.trim();
-  
-  // 1. VERIFICAÇÃO DE DUPLICIDADE / EXISTÊNCIA
-  // Procuramos na lista atual se já existe uma impressora com a mesma Marca E Modelo
-  const impressoraExistente = allPrinters.find(p => 
-    p.marca.toLowerCase() === marca.toLowerCase() && 
-    p.modelo.toLowerCase() === modelo.toLowerCase()
-  );
-
-  // 2. DEFINIR O ID
-  // Se encontrou, pegamos o ID dela. Se não, usamos o campo ID do formulário (caso seja uma edição manual)
-  const id = impressoraExistente ? impressoraExistente.id : document.getElementById('fieldId').value;
-
-  // 3. COLETAR OS OUTROS DADOS
-  const payload = {
-    marca,
-    modelo,
-    tipo: document.getElementById('fieldTipo').value,
-    conexao: document.getElementById('fieldConexao').value,
-    status: document.getElementById('fieldStatus').value,
-    observacoes: document.getElementById('fieldObservacoes').value.trim(),
-    imprimeComandas: document.getElementById('imprimeComandasSim').checked ? 'Sim' : 'Não',
-    imprimeNfe: document.getElementById('imprimeNfeSim').checked ? 'Sim' : 'Não',
-    imprimeQr: document.getElementById('imprimeQrSim').checked ? 'Sim' : 'Não'
-  };
-
   try {
-    // 4. LÓGICA DE ENVIO (UPSERT)
-    // Se existe ID (seja porque encontrou duplicada ou porque é edição), usa PUT. Caso contrário, POST.
+    // 1. COLETAR DADOS (Agora protegido pelo Try/Catch)
+    const marca = document.getElementById('fieldMarca').value.trim();
+    const modelo = document.getElementById('fieldModelo').value.trim();
+    
+    // 2. VERIFICAÇÃO DE DUPLICIDADE (Com trava de segurança para evitar erro de null)
+    const impressoraExistente = allPrinters.find(p => 
+      (p.marca || '').toLowerCase() === marca.toLowerCase() && 
+      (p.modelo || '').toLowerCase() === modelo.toLowerCase()
+    );
+
+    // 3. DEFINIR O ID
+    const campoId = document.getElementById('fieldId').value;
+    const id = impressoraExistente ? impressoraExistente.id : campoId;
+
+    // 4. COLETAR OS OUTROS DADOS
+    // Observação: se der erro aqui, verifique se os IDs no seu HTML estão exatamente assim
+    const payload = {
+      marca,
+      modelo,
+      tipo: document.getElementById('fieldTipo').value,
+      conexao: document.getElementById('fieldConexao').value,
+      status: document.getElementById('fieldStatus').value,
+      observacoes: document.getElementById('fieldObservacoes').value.trim(),
+      imprimeComandas: document.getElementById('imprimeComandasSim').checked ? 'Sim' : 'Não',
+      imprimeNfe: document.getElementById('imprimeNfeSim').checked ? 'Sim' : 'Não',
+      imprimeQr: document.getElementById('imprimeQrSim').checked ? 'Sim' : 'Não'
+    };
+
+    // 5. LÓGICA DE ENVIO (UPSERT)
     const url = id ? `${API_ENDPOINT}/${id}` : API_ENDPOINT;
     const metodo = id ? 'PUT' : 'POST';
 
@@ -164,7 +164,9 @@ async function savePrinter() {
       body: JSON.stringify(payload),
     });
 
-    if (!response.ok) throw new Error('Erro na comunicação com o servidor');
+    if (!response.ok) {
+      throw new Error(`O servidor retornou um erro: ${response.status}`);
+    }
 
     alert(id ? 'Dados atualizados com sucesso!' : 'Novo modelo cadastrado!');
     
@@ -173,11 +175,11 @@ async function savePrinter() {
     resetForm();
 
   } catch (error) {
-    console.error(error);
-    alert('Erro ao salvar no banco de dados.');
+    // Se der qualquer erro (seja no HTML ou no Servidor), ele vai cair aqui
+    console.error("ERRO DETALHADO:", error);
+    alert('Erro ao salvar. Aperte F12 e veja o Console para mais detalhes.');
   }
 }
-
 /*
 async function savePrinter() {
   const payload = getFormPayload();
