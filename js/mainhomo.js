@@ -146,7 +146,6 @@ async function savePrinter() {
     // 1. Coleta e Valida os dados usando a função getFormPayload
     const payload = getFormPayload();
     if (!payload) return; // Se os campos obrigatórios estiverem vazios, a função para aqui
-
     setSaving(true); // Ativa o efeito visual de "Salvando..." no botão
 
     // 2. Define se é uma edição (ID existente) ou um novo cadastro
