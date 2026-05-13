@@ -1543,17 +1543,17 @@ ul.nacc li {
    DESTAQUE MÁXIMO - SOFTWARE DELI
    ========================================= */
 .card-deli-destaque {
-  border: 3px solid #f59e0b !important; /* Borda mais grossa e forte */
-  background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%) !important; /* Fundo mais amarelado */
-  box-shadow: 0 12px 24px rgba(245, 158, 11, 0.25) !important; /* Sombra maior e colorida */
+  border: 3px solid #f59e0b !important; 
+  background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%) !important; 
+  box-shadow: 0 12px 24px rgba(245, 158, 11, 0.25) !important; 
   position: relative;
-  transform: scale(1.03); /* Deixa o card fisicamente um pouco maior que os outros */
-  z-index: 2; /* Garante que não é sobreposto por nada */
+  transform: scale(1.03); 
+  z-index: 2; 
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   
-  /* AS DUAS LINHAS AGORA ESTÃO NO LUGAR CERTO (NO CARD): */
+  /* FORÇA A EXIBIÇÃO FORA DO CARD */
   overflow: visible !important; 
-  margin-top: 20px !important;  
+  margin-top: 30px !important; /* Margem maior para dar espaço folgado à etiqueta */
 }
 
 /* Efeito ao passar o rato (hover) no card em destaque */
@@ -1562,13 +1562,13 @@ ul.nacc li {
   box-shadow: 0 16px 32px rgba(245, 158, 11, 0.35) !important;
 }
 
-/* Etiqueta com animação de "pulso" para chamar muita atenção */
-.card-deli-destaque::before {
-  content: "⭐ SISTEMA PRINCIPAL ⭐";
+/* Usamos ::after agora para não "brigar" com a linha colorida original do card */
+.card-deli-destaque::after {
+  content: "⭐ NATIVAS DELI ⭐";
   position: absolute;
-  top: -16px;
+  top: -20px; /* Empurra bem para fora do topo */
   left: 50%;
-  transform: translateX(-50%); /* Centraliza a etiqueta no topo perfeitamente */
+  transform: translateX(-50%); 
   background-color: #f59e0b;
   color: #fff;
   padding: 6px 18px;
@@ -1579,8 +1579,8 @@ ul.nacc li {
   letter-spacing: 1px;
   white-space: nowrap;
   box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
-  z-index: 10;
-  animation: pulsoDestaque 2s infinite; /* Ativa a animação criada abaixo */
+  z-index: 999 !important; /* Força a etiqueta a ficar por cima de absolutamente tudo */
+  animation: pulsoDestaque 2s infinite; 
 }
 
 /* Criação da animação do pulso (brilho a expandir) */
@@ -1596,7 +1596,7 @@ ul.nacc li {
   color: #fff !important;
   border: none !important;
   font-weight: bold;
-  font-size: 1.05rem; /* Texto maior */
+  font-size: 1.05rem; 
   box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3) !important;
 }
 
