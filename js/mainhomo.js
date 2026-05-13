@@ -137,6 +137,7 @@ elements.printersGrid.addEventListener('click', event => {
       deletePrinter(deleteButton.dataset.id);
     }
   });
+}
 
 
 // ==========================================
