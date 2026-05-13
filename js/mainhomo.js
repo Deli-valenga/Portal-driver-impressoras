@@ -213,7 +213,7 @@ async function deletePrinter(id) {
       allPrinters = allPrinters.filter(item => item.id !== id);
       persistLocalPrinters();
     } else {
-      // O FETCH MUDOU AQUI EMBAIXO:
+      // O Supabase precisa saber exatamente qual ID deletar e exige os "crachás"
       const response = await fetch(`${API_ENDPOINT}?id=eq.${id}`, { 
         method: 'DELETE',
         headers: {
@@ -221,7 +221,12 @@ async function deletePrinter(id) {
           'Authorization': `Bearer ${SUPABASE_KEY}`
         }
       });
-      if (!response.ok && response.status !== 204) throw new Error('Falha ao excluir na API');
+      
+      if (!response.ok && response.status !== 204) {
+        throw new Error('Falha ao excluir no banco de dados');
+      }
+      
+      // Recarrega a lista do banco após apagar
       await loadPrinters();
     }
 
@@ -233,8 +238,9 @@ async function deletePrinter(id) {
 
     showToast('Modelo excluído com sucesso.', 'success');
     if (elements.fieldId.value === id) resetForm();
+    
   } catch (error) {
-    console.error(error);
+    console.error("ERRO AO EXCLUIR NO SUPABASE:", error);
     showToast('Não foi possível excluir. Tente novamente.', 'error');
   }
 }
