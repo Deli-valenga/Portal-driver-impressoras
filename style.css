@@ -1433,7 +1433,7 @@ tbody tr:last-child td {
   text-align: center;
   margin-bottom: 25px;
   border-bottom: 2px solid rgb(16, 74, 150);
-  border-radius: 5$%;
+  border-radius: 5%;
   /* Linha divisória fina */
   padding-bottom: 15px;
   background-color: #c75300;
@@ -1538,6 +1538,7 @@ ul.nacc li {
 .menu div .thumb {
   border-bottom: 1px solid rgb(68, 44, 0) !important; 
 }
+
 /* =========================================
    DESTAQUE MÁXIMO - SOFTWARE DELI
    ========================================= */
@@ -1549,6 +1550,10 @@ ul.nacc li {
   transform: scale(1.03); /* Deixa o card fisicamente um pouco maior que os outros */
   z-index: 2; /* Garante que não é sobreposto por nada */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  /* AS DUAS LINHAS AGORA ESTÃO NO LUGAR CERTO (NO CARD): */
+  overflow: visible !important; 
+  margin-top: 20px !important;  
 }
 
 /* Efeito ao passar o rato (hover) no card em destaque */
@@ -1593,8 +1598,6 @@ ul.nacc li {
   font-weight: bold;
   font-size: 1.05rem; /* Texto maior */
   box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3) !important;
-  overflow: visible !important; /* Impede que a etiqueta seja cortada */
-  margin-top: 20px !important;  /* Empurra o card um pouco para baixo para dar espaço à etiqueta */
 }
 
 .card-deli-destaque .btn-download:hover {
