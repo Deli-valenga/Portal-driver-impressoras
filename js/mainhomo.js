@@ -202,18 +202,22 @@ async function savePrinter() {
 
 
 async function deletePrinter(id) {
-  const printer = allPrinters.find(item => item.id === id);
-  if (!printer) return;
+  // 1. A CORREÇÃO ESTÁ AQUI: Transformamos ambos em String (texto) para comparar com segurança
+  const printer = allPrinters.find(item => String(item.id) === String(id));
+  
+  if (!printer) {
+    console.error("Erro: Impressora não encontrada na lista com o ID:", id);
+    return;
+  }
 
   const confirmed = window.confirm(`Deseja excluir o modelo ${printer.modelo || ''} da marca ${printer.marca || ''}?`);
   if (!confirmed) return;
 
   try {
     if (usingLocalFallback) {
-      allPrinters = allPrinters.filter(item => item.id !== id);
+      allPrinters = allPrinters.filter(item => String(item.id) !== String(id));
       persistLocalPrinters();
     } else {
-      // O Supabase precisa saber exatamente qual ID deletar e exige os "crachás"
       const response = await fetch(`${API_ENDPOINT}?id=eq.${id}`, { 
         method: 'DELETE',
         headers: {
@@ -222,11 +226,12 @@ async function deletePrinter(id) {
         }
       });
       
+      // Captura o erro exato se o Supabase recusar a exclusão
       if (!response.ok && response.status !== 204) {
-        throw new Error('Falha ao excluir no banco de dados');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Falha ao excluir no Supabase');
       }
       
-      // Recarrega a lista do banco após apagar
       await loadPrinters();
     }
 
@@ -237,7 +242,7 @@ async function deletePrinter(id) {
     }
 
     showToast('Modelo excluído com sucesso.', 'success');
-    if (elements.fieldId.value === id) resetForm();
+    if (elements.fieldId.value === String(id)) resetForm();
     
   } catch (error) {
     console.error("ERRO AO EXCLUIR NO SUPABASE:", error);
