@@ -156,13 +156,10 @@ async function savePrinter() {
       status: document.getElementById('fieldStatus').value,
       observacoes: document.getElementById('fieldObservacoes') ? document.getElementById('fieldObservacoes').value.trim() : '',
       
-      // A MÁGICA DA TRADUÇÃO: Se for igual a 'Sim', vira true. Se não, vira false.
+      // Enviando como True ou False corretamente
       imprimeComandas: document.querySelector('input[name="imprimeComandas"]:checked')?.value === 'Sim',
       imprimeNfe: document.querySelector('input[name="imprimeNfe"]:checked')?.value === 'Sim',
-      imprimeQr: document.querySelector('input[name="imprimeQr"]:checked')?.value === 'Sim',
-      
-      // Enviando o campo ativo como true (caso o banco exija)
-      ativo: document.getElementById('fieldAtivo') ? document.getElementById('fieldAtivo').checked : true
+      imprimeQr: document.querySelector('input[name="imprimeQr"]:checked')?.value === 'Sim'
     };
 
     // A MÁGICA DO SUPABASE ACONTECE AQUI
