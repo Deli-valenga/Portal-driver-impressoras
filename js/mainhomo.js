@@ -1,5 +1,5 @@
 /* Impressoras Homologadas - lógica da página */
-const API = 'tables/impressoras';
+const API_ENDPOINT = 'tables/impressoras';
 const LOCAL_STORAGE_KEY = 'impressoras_homologadas_cache';
 
 let allPrinters = [];
@@ -103,24 +103,18 @@ function setupEvents() {
 async function loadPrinters() {
   setLoading(true);
   try {
-    const response = await fetch(`${API}?limit=500&sort=modelo`);
+    const response = await fetch(`${API_ENDPOINT}?limit=500&sort=modelo`);
     if (!response.ok) throw new Error('API indisponível');
     const result = await response.json();
     allPrinters = Array.isArray(result.data) ? result.data : [];
     usingLocalFallback = false;
-  } } catch (error) {
-    // 1. VAMOS IMPRIMIR O ERRO REAL NO CONSOLE:
-    console.error('MOTIVO DA FALHA NA API:', error); 
-    
-    // 2. VAMOS COMENTAR O FALLBACK PARA FORÇAR O ERRO A APARECER:
-    // usingLocalFallback = true;
-    // allPrinters = readLocalPrinters();
-    // if (!allPrinters.length) {
-    //   allPrinters = getInitialExamples();
-    //   persistLocalPrinters();
-    // }
-    // console.info('Usando armazenamento local temporário para desenvolvimento.', error);
-  } finally {
+  } catch (error) {
+    usingLocalFallback = true;
+    allPrinters = readLocalPrinters();
+    if (!allPrinters.length) {
+      allPrinters = getInitialExamples();
+      persistLocalPrinters();
+    }
     console.info('Usando armazenamento local temporário para desenvolvimento.', error);
   } finally {
     setLoading(false);
@@ -146,7 +140,7 @@ async function savePrinter() {
       }
       persistLocalPrinters();
     } else {
-      const response = await fetch(id ? `${API}/${id}` : API, {
+      const response = await fetch(id ? `${API_ENDPOINT}/${id}` : API_ENDPOINT, {
         method: id ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -183,7 +177,7 @@ async function deletePrinter(id) {
       allPrinters = allPrinters.filter(item => item.id !== id);
       persistLocalPrinters();
     } else {
-      const response = await fetch(`${API}/${id}`, { method: 'DELETE' });
+      const response = await fetch(`${API_ENDPOINT}/${id}`, { method: 'DELETE' });
       if (!response.ok && response.status !== 204) throw new Error('Falha ao excluir na API');
       await loadPrinters();
     }
