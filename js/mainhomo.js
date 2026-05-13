@@ -125,8 +125,86 @@ async function loadPrinters() {
 }
 
 async function savePrinter() {
+  const marca = document.getElementById('fieldMarca').value.trim();
+  const modelo = document.getElementById('fieldModelo').value.trim();
+  
+  // 1. VERIFICAÇÃO DE DUPLICIDADE / EXISTÊNCIA
+  // Procuramos na lista atual se já existe uma impressora com a mesma Marca E Modelo
+  const impressoraExistente = allPrinters.find(p => 
+    p.marca.toLowerCase() === marca.toLowerCase() && 
+    p.modelo.toLowerCase() === modelo.toLowerCase()
+  );
+
+  // 2. DEFINIR O ID
+  // Se encontrou, pegamos o ID dela. Se não, usamos o campo ID do formulário (caso seja uma edição manual)
+  const id = impressoraExistente ? impressoraExistente.id : document.getElementById('fieldId').value;
+
+  // 3. COLETAR OS OUTROS DADOS
+  const payload = {
+    marca,
+    modelo,
+    tipo: document.getElementById('fieldTipo').value,
+    conexao: document.getElementById('fieldConexao').value,
+    status: document.getElementById('fieldStatus').value,
+    observacoes: document.getElementById('fieldObservacoes').value.trim(),
+    imprimeComandas: document.getElementById('imprimeComandasSim').checked ? 'Sim' : 'Não',
+    imprimeNfe: document.getElementById('imprimeNfeSim').checked ? 'Sim' : 'Não',
+    imprimeQr: document.getElementById('imprimeQrSim').checked ? 'Sim' : 'Não'
+  };
+
+  try {
+    // 4. LÓGICA DE ENVIO (UPSERT)
+    // Se existe ID (seja porque encontrou duplicada ou porque é edição), usa PUT. Caso contrário, POST.
+    const url = id ? `${API_ENDPOINT}/${id}` : API_ENDPOINT;
+    const metodo = id ? 'PUT' : 'POST';
+
+    const response = await fetch(url, {
+      method: metodo,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) throw new Error('Erro na comunicação com o servidor');
+
+    alert(id ? 'Dados atualizados com sucesso!' : 'Novo modelo cadastrado!');
+    
+    // Recarrega a lista para atualizar a tela com os dados do banco
+    await loadPrinters(); 
+    resetForm();
+
+  } catch (error) {
+    console.error(error);
+    alert('Erro ao salvar no banco de dados.');
+  }
+}
+
+/*
+async function savePrinter() {
   const payload = getFormPayload();
-  if (!payload) return;
+  const marca = document.getElementById('fieldMarca').value.trim();
+  const modelo = document.getElementById('fieldModelo').value.trim();
+  const comanda = document.getElementById('imprimeComandasSim').checked ? 'Sim' : 'Não';
+  const nfe = document.getElementById('imprimeNfeSim').checked ? 'Sim' : 'Não';
+  const qr = document.getElementById('imprimeQrSim').checked ? 'Sim' : 'Não';
+  const tipo = document.getElementById('fieldTipo').value;
+  const conexao = document.getElementById('fieldConexao').value;
+  const status = document.getElementById('fieldStatus').value;  
+  const obs = document.getElementById('fieldObs').value.trim();
+
+  const dadosParaEnviar = {
+    marca: marca,
+    modelo: modelo,
+    imprimeComandas: comanda,
+    imprimeNfe: nfe,
+    imprimeQr: qr,
+    tipo: tipo,
+    conexao: conexao,
+    status: status,
+    observacoes: obs
+  };
+
+  if (!marca)  { showToast('A marca é obrigatória.', 'error'); return; }
+  if (!modelo) { showToast('Selecione o modelo.', 'error'); return; }
 
   const id = elements.fieldId.value;
   setSaving(true);
@@ -164,6 +242,8 @@ async function savePrinter() {
     setSaving(false);
   }
 }
+*/
+
 
 async function deletePrinter(id) {
   const printer = allPrinters.find(item => item.id === id);
