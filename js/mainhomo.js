@@ -126,35 +126,35 @@ async function loadPrinters() {
 
 async function savePrinter() {
   try {
-    // 1. COLETAR DADOS (Agora protegido pelo Try/Catch)
+    // 1. COLETAR DADOS PRINCIPAIS
     const marca = document.getElementById('fieldMarca').value.trim();
     const modelo = document.getElementById('fieldModelo').value.trim();
     
-    // 2. VERIFICAÇÃO DE DUPLICIDADE (Com trava de segurança para evitar erro de null)
+    // 2. VERIFICAÇÃO DE DUPLICIDADE (Ignora maiúsculas/minúsculas e evita erros)
     const impressoraExistente = allPrinters.find(p => 
       (p.marca || '').toLowerCase() === marca.toLowerCase() && 
       (p.modelo || '').toLowerCase() === modelo.toLowerCase()
     );
 
-    // 3. DEFINIR O ID
+    // 3. DEFINIR O ID (Atualização ou Novo Cadastro)
     const campoId = document.getElementById('fieldId').value;
     const id = impressoraExistente ? impressoraExistente.id : campoId;
 
-    // 4. COLETAR OS OUTROS DADOS
-    // Observação: se der erro aqui, verifique se os IDs no seu HTML estão exatamente assim
+    // 4. MONTAR O PACOTE DE DADOS (Baseado exatamente no seu HTML)
+    // Usamos querySelector para os Radios e um verificador de segurança para as observações
     const payload = {
       marca,
       modelo,
       tipo: document.getElementById('fieldTipo').value,
       conexao: document.getElementById('fieldConexao').value,
       status: document.getElementById('fieldStatus').value,
-      observacoes: document.getElementById('fieldObservacoes').value.trim(),
-      imprimeComandas: document.getElementById('imprimeComandasSim').checked ? 'Sim' : 'Não',
-      imprimeNfe: document.getElementById('imprimeNfeSim').checked ? 'Sim' : 'Não',
-      imprimeQr: document.getElementById('imprimeQrSim').checked ? 'Sim' : 'Não'
+      observacoes: document.getElementById('fieldObservacoes') ? document.getElementById('fieldObservacoes').value.trim() : '',
+      imprimeComandas: document.querySelector('input[name="imprimeComandas"]:checked')?.value || 'Não',
+      imprimeNfe: document.querySelector('input[name="imprimeNfe"]:checked')?.value || 'Não',
+      imprimeQr: document.querySelector('input[name="imprimeQr"]:checked')?.value || 'Não'
     };
 
-    // 5. LÓGICA DE ENVIO (UPSERT)
+    // 5. ENVIAR PARA O BACK-END (O seu Banco de Dados)
     const url = id ? `${API_ENDPOINT}/${id}` : API_ENDPOINT;
     const metodo = id ? 'PUT' : 'POST';
 
@@ -165,19 +165,20 @@ async function savePrinter() {
     });
 
     if (!response.ok) {
-      throw new Error(`O servidor retornou um erro: ${response.status}`);
+      throw new Error(`Falha na API. O servidor retornou o código: ${response.status}`);
     }
 
-    alert(id ? 'Dados atualizados com sucesso!' : 'Novo modelo cadastrado!');
+    // 6. SUCESSO!
+    alert(id ? 'Dados do modelo atualizados com sucesso no banco!' : 'Novo modelo cadastrado no banco!');
     
-    // Recarrega a lista para atualizar a tela com os dados do banco
+    // Atualiza a tela com as informações frescas do banco
     await loadPrinters(); 
     resetForm();
 
   } catch (error) {
-    // Se der qualquer erro (seja no HTML ou no Servidor), ele vai cair aqui
-    console.error("ERRO DETALHADO:", error);
-    alert('Erro ao salvar. Aperte F12 e veja o Console para mais detalhes.');
+    // Captura qualquer erro de digitação no código ou falha de rede
+    console.error("ERRO DETALHADO AO SALVAR:", error);
+    alert('Erro ao salvar. Verifique o Console (F12) para os detalhes.');
   }
 }
 /*
