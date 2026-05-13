@@ -5,7 +5,6 @@ const API_ENDPOINT = `${SUPABASE_URL}/rest/v1/impressoras`;
 const LOCAL_STORAGE_KEY = 'impressoras_fallback';
 
 let allPrinters = [];
-let deleteTargetId = null;
 let currentSearch = '';
 let currentStatus = 'all';
 let currentSort = 'modelo_asc';
@@ -28,6 +27,12 @@ function cacheElements() {
   elements.loadingState = document.getElementById('loadingState');
   elements.emptyState = document.getElementById('emptyState');
   elements.resultsCount = document.getElementById('resultsCount');
+  
+  // Elementos do Formulário
+  elements.cadastroSection = document.getElementById('cadastro-section');
+  elements.btnToggleForm = document.getElementById('btnToggleForm');
+  elements.btnCloseForm = document.getElementById('btnCloseForm');
+  
   elements.printerForm = document.getElementById('printerForm');
   elements.formTitle = document.getElementById('form-title');
   elements.fieldId = document.getElementById('fieldId');
@@ -37,7 +42,6 @@ function cacheElements() {
   elements.fieldConexao = document.getElementById('fieldConexao');
   elements.fieldStatus = document.getElementById('fieldStatus');
   elements.fieldObservacoes = document.getElementById('fieldObservacoes');
-  elements.fieldAtivo = document.getElementById('fieldAtivo');
   elements.btnSavePrinter = document.getElementById('btnSavePrinter');
   elements.btnResetForm = document.getElementById('btnResetForm');
   elements.brandSuggestions = document.getElementById('brandSuggestions');
@@ -45,9 +49,6 @@ function cacheElements() {
   elements.statHomologadas = document.getElementById('statHomologadas');
   elements.statMarcas = document.getElementById('statMarcas');
   elements.toast = document.getElementById('toast');
-  elements.cadastroSection = document.getElementById('cadastro-section');
-  elements.btnToggleForm = document.getElementById('btnToggleForm');
-  elements.btnCloseForm = document.getElementById('btnCloseForm');
 }
 
 function setupEvents() {
@@ -91,6 +92,19 @@ function setupEvents() {
 
   elements.btnResetForm.addEventListener('click', resetForm);
 
+  // Eventos para ABRIR e FECHAR o formulário
+  if (elements.btnToggleForm) {
+    elements.btnToggleForm.addEventListener('click', event => {
+      event.preventDefault();
+      resetForm();
+      openForm();
+    });
+  }
+
+  if (elements.btnCloseForm) {
+    elements.btnCloseForm.addEventListener('click', closeForm);
+  }
+
   elements.printersGrid.addEventListener('click', event => {
     const editButton = event.target.closest('[data-action="edit"]');
     const deleteButton = event.target.closest('[data-action="delete"]');
@@ -99,31 +113,38 @@ function setupEvents() {
       fillFormForEdit(editButton.dataset.id);
       return;
     }
-
     if (deleteButton) {
       deletePrinter(deleteButton.dataset.id);
-    }
-
-    // Evento para ABRIR o formulário ao clicar em Adicionar
-    if (elements.btnToggleForm) {
-      elements.btnToggleForm.addEventListener('click', event => {
-        event.preventDefault();
-        resetForm(); // Limpa se tiver algo velho escrito
-        openForm();  // Abre a aba
-      });
-    }
-
-    // Evento para FECHAR o formulário no "X"
-    if (elements.btnCloseForm) {
-      elements.btnCloseForm.addEventListener('click', closeForm);
     }
   });
 }
 
+// ==========================================
+// FUNÇÕES DE EXIBIÇÃO DO FORMULÁRIO
+// ==========================================
+function openForm() {
+  if (elements.cadastroSection) {
+    elements.cadastroSection.style.display = 'block';
+    setTimeout(() => {
+      elements.cadastroSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      elements.fieldMarca.focus();
+    }, 50);
+  }
+}
+
+function closeForm() {
+  if (elements.cadastroSection) {
+    elements.cadastroSection.style.display = 'none';
+    resetForm();
+  }
+}
+
+// ==========================================
+// INTEGRAÇÃO COM O SUPABASE
+// ==========================================
 async function loadPrinters() {
   setLoading(true);
   try {
-    // CORREÇÃO: O Supabase usa '?select=*&order=modelo.asc'
     const response = await fetch(`${API_ENDPOINT}?select=*&order=modelo.asc`, {
       method: 'GET',
       headers: {
@@ -134,25 +155,27 @@ async function loadPrinters() {
 
     if (!response.ok) {
       const err = await response.json();
-      throw new Error(`Erro do Supabase ao ler: ${err.message}`);
+      throw new Error(`Erro do Supabase: ${err.message}`);
+    }
+    
+    const result = await response.json();
+    if (Array.isArray(result) && result.length > 0) {
+      allPrinters = result;
+      usingLocalFallback = false;
+    } else {
+      throw new Error('Banco vazio');
     }
 
-    // CORREÇÃO: O Supabase devolve direto um Array (uma lista), e não { data: [...] }
-    const result = await response.json();
-    allPrinters = Array.isArray(result) ? result : [];
-    usingLocalFallback = false;
-
   } catch (error) {
-    console.warn("Falha ao carregar do Supabase. Ativando modo local.", error);
+    console.warn("Carregando modo local/exemplos.", error);
     usingLocalFallback = true;
     allPrinters = readLocalPrinters();
-    if (!allPrinters.length) {
+    if (!allPrinters || allPrinters.length === 0) {
       allPrinters = getInitialExamples();
-      persistLocalPrinters();
     }
   } finally {
     setLoading(false);
-    renderPrinters();
+    renderPrinters(); // Esta função precisa existir para desenhar a tela!
     renderStats();
     renderBrandSuggestions();
   }
@@ -160,25 +183,18 @@ async function loadPrinters() {
 
 async function savePrinter() {
   try {
-    // 1. Coleta e Valida os dados usando a função getFormPayload
     const payload = getFormPayload();
-    if (!payload) return; // Se os campos obrigatórios estiverem vazios, a função para aqui
-    setSaving(true); // Ativa o efeito visual de "Salvando..." no botão
+    if (!payload) return; 
 
-    // 2. Define se é uma edição (ID existente) ou um novo cadastro
+    setSaving(true);
     const campoId = elements.fieldId.value;
-
-    // Busca se já existe uma impressora igual para evitar duplicados no banco
-    const impressoraExistente = allPrinters.find(p =>
-      (p.marca || '').toLowerCase() === payload.marca.toLowerCase() &&
+    
+    const impressoraExistente = allPrinters.find(p => 
+      (p.marca || '').toLowerCase() === payload.marca.toLowerCase() && 
       (p.modelo || '').toLowerCase() === payload.modelo.toLowerCase()
     );
 
-    // Prioriza o ID da existente (para atualizar) ou o ID que está no campo oculto do formulário
     const id = impressoraExistente ? impressoraExistente.id : campoId;
-
-    // 3. Configura a URL e o Método para o Supabase
-    // Se tem ID, usamos PATCH (editar). Se não tem, usamos POST (criar).
     const url = id ? `${API_ENDPOINT}?id=eq.${id}` : API_ENDPOINT;
     const metodo = id ? 'PATCH' : 'POST';
 
@@ -195,34 +211,26 @@ async function savePrinter() {
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error("ERRO DETALHADO DO SUPABASE:", errorData);
-      throw new Error(errorData.message || 'Erro ao comunicar com o banco');
+      throw new Error(errorData.message || 'Erro ao salvar no banco');
     }
 
-    // 4. Feedback de Sucesso
     showToast(id ? 'Dados atualizados com sucesso!' : 'Impressora cadastrada com sucesso!', 'success');
-
-    await loadPrinters();
-    closeForm();         // Limpa o formulário e volta o título para "Adicionar"
+    await loadPrinters(); 
+    closeForm(); // Fecha o formulário ao terminar
 
   } catch (error) {
     console.error("ERRO AO SALVAR:", error);
-    showToast('Erro ao salvar no banco de dados.', 'error');
+    showToast('Erro ao salvar. Verifique o console.', 'error');
   } finally {
-    setSaving(false); // Garante que o botão volte ao estado normal (Salvar modelo)
+    setSaving(false); 
   }
 }
 
 async function deletePrinter(id) {
-  // 1. A CORREÇÃO ESTÁ AQUI: Transformamos ambos em String (texto) para comparar com segurança
   const printer = allPrinters.find(item => String(item.id) === String(id));
+  if (!printer) return;
 
-  if (!printer) {
-    console.error("Erro: Impressora não encontrada na lista com o ID:", id);
-    return;
-  }
-
-  const confirmed = window.confirm(`Deseja excluir o modelo ${printer.modelo || ''} da marca ${printer.marca || ''}?`);
+  const confirmed = window.confirm(`Deseja excluir o modelo ${printer.modelo || ''}?`);
   if (!confirmed) return;
 
   try {
@@ -230,38 +238,30 @@ async function deletePrinter(id) {
       allPrinters = allPrinters.filter(item => String(item.id) !== String(id));
       persistLocalPrinters();
     } else {
-      const response = await fetch(`${API_ENDPOINT}?id=eq.${id}`, {
+      const response = await fetch(`${API_ENDPOINT}?id=eq.${id}`, { 
         method: 'DELETE',
         headers: {
           'apikey': SUPABASE_KEY,
           'Authorization': `Bearer ${SUPABASE_KEY}`
         }
       });
-
-      // Captura o erro exato se o Supabase recusar a exclusão
-      if (!response.ok && response.status !== 204) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Falha ao excluir no Supabase');
-      }
-
+      
+      if (!response.ok && response.status !== 204) throw new Error('Falha ao excluir');
       await loadPrinters();
     }
 
-    if (usingLocalFallback) {
-      renderPrinters();
-      renderStats();
-      renderBrandSuggestions();
-    }
-
     showToast('Modelo excluído com sucesso.', 'success');
-    if (elements.fieldId.value === String(id)) resetForm();
-
+    if (elements.fieldId.value === String(id)) closeForm();
+    
   } catch (error) {
-    console.error("ERRO AO EXCLUIR NO SUPABASE:", error);
-    showToast('Não foi possível excluir. Tente novamente.', 'error');
+    console.error(error);
+    showToast('Não foi possível excluir.', 'error');
   }
 }
 
+// ==========================================
+// LÓGICA DE DADOS E RENDERIZAÇÃO
+// ==========================================
 function getFormPayload() {
   const marca = elements.fieldMarca.value.trim();
   const modelo = elements.fieldModelo.value.trim();
@@ -271,7 +271,6 @@ function getFormPayload() {
     elements.fieldMarca.focus();
     return null;
   }
-
   if (!modelo) {
     showToast('Informe o modelo da impressora.', 'error');
     elements.fieldModelo.focus();
@@ -285,20 +284,34 @@ function getFormPayload() {
     conexao: elements.fieldConexao.value,
     status: elements.fieldStatus.value,
     observacoes: elements.fieldObservacoes.value.trim(),
-    // REMOVA A LINHA DO ATIVO DAQUI!
     imprimeComandas: document.querySelector('input[name="imprimeComandas"]:checked')?.value === 'Sim',
     imprimeNfe: document.querySelector('input[name="imprimeNfe"]:checked')?.value === 'Sim',
     imprimeQr: document.querySelector('input[name="imprimeQr"]:checked')?.value === 'Sim'
   };
 }
 
+function renderPrinters() {
+  const filtered = getFilteredPrinters();
+
+  if (elements.resultsCount) {
+    elements.resultsCount.textContent = filtered.length === 1 
+      ? '1 modelo encontrado' 
+      : `${filtered.length} modelos encontrados`;
+  }
+
+  const hasResults = filtered.length > 0;
+  if (elements.emptyState) elements.emptyState.hidden = hasResults;
+  if (elements.printersGrid) elements.printersGrid.style.display = hasResults ? 'grid' : 'none';
+
+  if (elements.printersGrid) {
+    elements.printersGrid.innerHTML = filtered.map(printer => createPrinterCard(printer)).join('');
+  }
+}
+
 function createPrinterCard(printer) {
   const statusClass = getStatusClass(printer.status);
   const notes = stripHtml(printer.observacoes || '');
-  const visibleLabel = printer.ativo === false ? '<span class="badge"><i class="fa-solid fa-eye-slash"></i> Oculto</span>' : '';
-
-  // A CORREÇÃO ESTÁ AQUI: 
-  // O JavaScript lê o 'true' do banco e transforma na palavra 'Sim'. Se for 'false', vira 'Não'.
+  
   const imprimeComandas = printer.imprimeComandas ? 'Sim' : 'Não';
   const imprimeNfe = printer.imprimeNfe ? 'Sim' : 'Não';
   const imprimeQr = printer.imprimeQr ? 'Sim' : 'Não';
@@ -316,7 +329,6 @@ function createPrinterCard(printer) {
         <span class="badge badge-status ${statusClass}"><i class="fa-solid fa-certificate"></i> ${escapeHtml(printer.status || 'Homologada')}</span>
         ${printer.tipo ? `<span class="badge"><i class="fa-solid fa-tag"></i> ${escapeHtml(printer.tipo)}</span>` : ''}
         ${printer.conexao ? `<span class="badge"><i class="fa-solid fa-plug"></i> ${escapeHtml(printer.conexao)}</span>` : ''}
-        ${visibleLabel}
         
         <span class="badge ${imprimeComandas === 'Sim' ? 'feature-yes' : 'feature-no'}">Cmd: ${imprimeComandas}</span>
         <span class="badge ${imprimeNfe === 'Sim' ? 'feature-yes' : 'feature-no'}">NFe: ${imprimeNfe}</span>
@@ -328,29 +340,6 @@ function createPrinterCard(printer) {
         <button class="btn-delete-card" type="button" data-action="delete" data-id="${escapeHtml(printer.id)}"><i class="fa-solid fa-trash"></i> Excluir</button>
       </div>
     </article>`;
-}
-
-function renderPrinters() {
-  const filtered = getFilteredPrinters();
-
-  // 1. Atualiza o texto do contador (ex: "2 modelos encontrados")
-  if (elements.resultsCount) {
-    elements.resultsCount.textContent = filtered.length === 1
-      ? '1 modelo encontrado'
-      : `${filtered.length} modelos encontrados`;
-  }
-
-  // 2. Controla o estado vazio (se não houver nada, mostra o ícone de caixa vazia)
-  const hasResults = filtered.length > 0;
-  if (elements.emptyState) elements.emptyState.hidden = hasResults;
-  if (elements.printersGrid) elements.printersGrid.style.display = hasResults ? 'grid' : 'none';
-
-  // 3. Renderiza os cards usando a função createPrinterCard que você já tem
-  if (elements.printersGrid) {
-    elements.printersGrid.innerHTML = filtered
-      .map(printer => createPrinterCard(printer))
-      .join('');
-  }
 }
 
 function getFilteredPrinters() {
@@ -382,195 +371,138 @@ function getFilteredPrinters() {
   return list;
 }
 
+function fillFormForEdit(id) {
+  openForm(); // Mostra o formulário antes de preencher
+  
+  const printer = allPrinters.find(item => String(item.id) === String(id));
+  if (!printer) return;
+
+  elements.fieldId.value = printer.id;
+  elements.fieldMarca.value = printer.marca || '';
+  elements.fieldModelo.value = printer.modelo || '';
+  elements.fieldTipo.value = printer.tipo || 'Térmica';
+  elements.fieldConexao.value = printer.conexao || 'USB';
+  elements.fieldStatus.value = printer.status || 'Homologada';
+  elements.fieldObservacoes.value = stripHtml(printer.observacoes || '');
+
+  const valorCmd = printer.imprimeComandas ? 'Sim' : 'Não';
+  const cmdRadio = document.querySelector(`input[name="imprimeComandas"][value="${valorCmd}"]`);
+  if (cmdRadio) cmdRadio.checked = true;
+
+  const valorNfe = printer.imprimeNfe ? 'Sim' : 'Não';
+  const nfeRadio = document.querySelector(`input[name="imprimeNfe"][value="${valorNfe}"]`);
+  if (nfeRadio) nfeRadio.checked = true;
+
+  const valorQr = printer.imprimeQr ? 'Sim' : 'Não';
+  const qrRadio = document.querySelector(`input[name="imprimeQr"][value="${valorQr}"]`);
+  if (qrRadio) qrRadio.checked = true;
+
+  elements.formTitle.textContent = 'Editar impressora';
+  elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Atualizar modelo';
+}
+
+function resetForm() {
+  if (elements.printerForm) elements.printerForm.reset();
+  if (elements.fieldId) elements.fieldId.value = '';
+  if (elements.fieldTipo) elements.fieldTipo.value = 'Térmica';
+  if (elements.fieldConexao) elements.fieldConexao.value = 'USB';
+  if (elements.fieldStatus) elements.fieldStatus.value = 'Homologada';
+
+  const cmdRadio = document.querySelector('input[name="imprimeComandas"][value="Não"]');
+  if (cmdRadio) cmdRadio.checked = true;
+
+  const nfeRadio = document.querySelector('input[name="imprimeNfe"][value="Não"]');
+  if (nfeRadio) nfeRadio.checked = true;
+
+  const qrRadio = document.querySelector('input[name="imprimeQr"][value="Não"]');
+  if (qrRadio) qrRadio.checked = true;
+
+  if (elements.formTitle) elements.formTitle.textContent = 'Adicionar impressora';
+  if (elements.btnSavePrinter) elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar modelo';
+}
+
 function renderStats() {
-  const activePrinters = allPrinters.filter(printer => printer.ativo !== false);
-  const brands = new Set(activePrinters.map(printer => normalizeText(printer.marca)).filter(Boolean));
-  elements.statTotal.textContent = activePrinters.length;
-  elements.statHomologadas.textContent = activePrinters.filter(printer => printer.status === 'Homologada').length;
-  elements.statMarcas.textContent = brands.size;
+  const brands = new Set(allPrinters.map(printer => normalizeText(printer.marca)).filter(Boolean));
+  if (elements.statTotal) elements.statTotal.textContent = allPrinters.length;
+  if (elements.statHomologadas) elements.statHomologadas.textContent = allPrinters.filter(p => p.status === 'Homologada').length;
+  if (elements.statMarcas) elements.statMarcas.textContent = brands.size;
 }
 
 function renderBrandSuggestions() {
+  if (!elements.brandSuggestions) return;
   const brands = [...new Set(allPrinters.map(printer => printer.marca).filter(Boolean))].sort(compareText);
   elements.brandSuggestions.innerHTML = brands.map(brand => `<option value="${escapeHtml(brand)}"></option>`).join('');
 }
 
-function fillFormForEdit(id) {
+function setLoading(isLoading) {
+  if (elements.loadingState) elements.loadingState.style.display = isLoading ? 'grid' : 'none';
+  if (elements.printersGrid) elements.printersGrid.style.display = isLoading ? 'none' : 'grid';
+}
 
-  function fillFormForEdit(id) {
-    openForm();
-
-    // 1. CORREÇÃO DO ID: Convertendo os dois para texto igual no Delete
-    const printer = allPrinters.find(item => String(item.id) === String(id));
-
-    if (!printer) {
-      console.error("Erro: Impressora não encontrada para edição.");
-      return;
-    }
-
-    elements.fieldId.value = printer.id;
-    elements.fieldMarca.value = printer.marca || '';
-    elements.fieldModelo.value = printer.modelo || '';
-    elements.fieldTipo.value = printer.tipo || 'Térmica';
-    elements.fieldConexao.value = printer.conexao || 'USB';
-    elements.fieldStatus.value = printer.status || 'Homologada';
-    elements.fieldObservacoes.value = stripHtml(printer.observacoes || '');
-    if (elements.fieldAtivo) elements.fieldAtivo.checked = printer.ativo !== false;
-
-    // 2. CORREÇÃO DOS RADIOS (SIM/NÃO): 
-    // Lê o true/false do Supabase e traduz para marcar a bolinha certa
-    const valorCmd = printer.imprimeComandas ? 'Sim' : 'Não';
-    const cmdRadio = document.querySelector(`input[name="imprimeComandas"][value="${valorCmd}"]`);
-    if (cmdRadio) cmdRadio.checked = true;
-
-    const valorNfe = printer.imprimeNfe ? 'Sim' : 'Não';
-    const nfeRadio = document.querySelector(`input[name="imprimeNfe"][value="${valorNfe}"]`);
-    if (nfeRadio) nfeRadio.checked = true;
-
-    const valorQr = printer.imprimeQr ? 'Sim' : 'Não';
-    const qrRadio = document.querySelector(`input[name="imprimeQr"][value="${valorQr}"]`);
-    if (qrRadio) qrRadio.checked = true;
-
-    elements.formTitle.textContent = 'Editar impressora';
-    elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Atualizar modelo';
-
-    // Rola a tela suavemente até o formulário
-    document.getElementById('cadastro-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    elements.fieldMarca.focus();
-  }
-
-  function resetForm() {
-    elements.printerForm.reset();
-    elements.fieldId.value = '';
-    elements.fieldTipo.value = 'Térmica';
-    elements.fieldConexao.value = 'USB';
-    elements.fieldStatus.value = 'Homologada';
-    elements.fieldAtivo.checked = true;
-
-    // VOLTA PARA O PADRÃO NÃO
-    const cmdRadio = document.querySelector('input[name="imprimeComandas"][value="Não"]');
-    if (cmdRadio) cmdRadio.checked = true;
-
-    const nfeRadio = document.querySelector('input[name="imprimeNfe"][value="Não"]');
-    if (nfeRadio) nfeRadio.checked = true;
-
-    const qrRadio = document.querySelector('input[name="imprimeQr"][value="Não"]');
-    if (qrRadio) qrRadio.checked = true;
-
-    elements.formTitle.textContent = 'Adicionar impressora';
-    elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar modelo';
-  }
-
-  function setLoading(isLoading) {
-    elements.loadingState.style.display = isLoading ? 'grid' : 'none';
-    elements.printersGrid.style.display = isLoading ? 'none' : 'grid';
-  }
-
-  function setSaving(isSaving) {
+function setSaving(isSaving) {
+  if (elements.btnSavePrinter) {
     elements.btnSavePrinter.disabled = isSaving;
     if (isSaving) elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
   }
+}
 
-  function showToast(message, type = 'info') {
-    elements.toast.textContent = message;
-    elements.toast.className = `toast visible ${type}`;
-    window.clearTimeout(showToast.timeout);
-    showToast.timeout = window.setTimeout(() => {
-      elements.toast.className = 'toast';
-    }, 3200);
-  }
+function showToast(message, type = 'info') {
+  if (!elements.toast) return;
+  elements.toast.textContent = message;
+  elements.toast.className = `toast visible ${type}`;
+  window.clearTimeout(showToast.timeout);
+  showToast.timeout = window.setTimeout(() => {
+    elements.toast.className = 'toast';
+  }, 3200);
+}
 
-  function readLocalPrinters() {
-    try {
-      return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
-    } catch {
-      return [];
-    }
+function readLocalPrinters() {
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+  } catch {
+    return [];
   }
+}
 
-  function persistLocalPrinters() {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allPrinters));
-  }
+function persistLocalPrinters() {
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allPrinters));
+}
 
-  function getInitialExamples() {
-    const now = Date.now();
-    return [
-      {
-        id: crypto.randomUUID(),
-        marca: 'Epson',
-        modelo: 'TM-T20X',
-        tipo: 'Térmica',
-        conexao: 'USB/Ethernet',
-        status: 'Homologada',
-        observacoes: 'Modelo térmico recomendado para pontos de venda com conexão de rede.',
-        ativo: true,
-        created_at: now - 3000,
-      },
-      {
-        id: crypto.randomUUID(),
-        marca: 'Elgin',
-        modelo: 'i9 Full',
-        tipo: 'Térmica',
-        conexao: 'USB',
-        status: 'Homologada',
-        observacoes: 'Compatível com ambientes Windows e uso em emissão de comprovantes.',
-        ativo: true,
-        created_at: now - 2000,
-      },
-      {
-        id: crypto.randomUUID(),
-        marca: 'Bematech',
-        modelo: 'MP-4200 TH',
-        tipo: 'Térmica',
-        conexao: 'USB',
-        status: 'Em análise',
-        observacoes: 'Validar versão de firmware antes da implantação.',
-        ativo: true,
-        created_at: now - 1000,
-      },
-    ];
-  }
+function getInitialExamples() {
+  const now = Date.now();
+  return [
+    { id: crypto.randomUUID(), marca: 'Epson', modelo: 'TM-T20X', tipo: 'Térmica', conexao: 'USB/Ethernet', status: 'Homologada', observacoes: 'Modelo recomendado.', imprimeComandas: true, imprimeNfe: true, imprimeQr: true, created_at: now - 3000 },
+    { id: crypto.randomUUID(), marca: 'Elgin', modelo: 'i9 Full', tipo: 'Térmica', conexao: 'USB', status: 'Homologada', observacoes: 'Compatível Windows.', imprimeComandas: true, imprimeNfe: true, imprimeQr: true, created_at: now - 2000 }
+  ];
+}
 
-  function getStatusClass(status = '') {
-    const normalized = normalizeText(status);
-    if (normalized === 'em análise') return 'analysis';
-    if (normalized === 'reprovada') return 'rejected';
-    if (normalized === 'descontinuada') return 'discontinued';
-    return '';
-  }
+function getStatusClass(status = '') {
+  const normalized = normalizeText(status);
+  if (normalized === 'em análise') return 'analysis';
+  if (normalized === 'reprovada') return 'rejected';
+  if (normalized === 'descontinuada') return 'discontinued';
+  return '';
+}
 
-  function normalizeText(value = '') {
-    return String(value).trim();
-  }
+function normalizeText(value = '') {
+  return String(value).trim();
+}
 
-  function compareText(a = '', b = '') {
-    return String(a || '').localeCompare(String(b || ''), 'pt-BR', { sensitivity: 'base' });
-  }
+function compareText(a = '', b = '') {
+  return String(a || '').localeCompare(String(b || ''), 'pt-BR', { sensitivity: 'base' });
+}
 
-  function stripHtml(value = '') {
-    const temp = document.createElement('div');
-    temp.innerHTML = value;
-    return temp.textContent || temp.innerText || '';
-  }
+function stripHtml(value = '') {
+  const temp = document.createElement('div');
+  temp.innerHTML = value;
+  return temp.textContent || temp.innerText || '';
+}
 
-  function escapeHtml(value = '') {
-    return String(value)
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#039;');
-  }
-  function openForm() {
-    elements.cadastroSection.style.display = 'block'; // Mostra o formulário
-    // Dá um pequeno atraso só para o navegador desenhar a tela antes de rolar
-    setTimeout(() => {
-      elements.cadastroSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      elements.fieldMarca.focus();
-    }, 50);
-  }
-
-  function closeForm() {
-    elements.cadastroSection.style.display = 'none'; // Esconde o formulário
-    resetForm(); // Limpa os dados
-  }
+function escapeHtml(value = '') {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
