@@ -33,6 +33,22 @@ body {
   line-height: 1.55;
 }
 
+/* =========================================
+   FUNDO PÊSSEGO SUAVE
+   ========================================= */
+body {
+  /* Um tom pêssego muito claro e elegante */
+  background-color: #b69074 !important; 
+  
+  /* Um gradiente muito suave para dar profundidade (opcional, mas fica lindo) */
+  background-image: linear-gradient(135deg, #fff5ed 0%, #fdfbf7 100%) !important;
+}
+
+/* Se o fundo do cabeçalho ou menu também estiver muito branco e quiser suavizar: */
+.hero-section {
+  background-color: transparent !important;
+}
+
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 a { color: inherit; }
