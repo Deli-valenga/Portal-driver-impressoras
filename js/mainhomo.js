@@ -1,6 +1,6 @@
 /* Impressoras Homologadas - lógica da página */
 const SUPABASE_URL = 'https://kvlzaigjcbjfhfbmsmfw.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bHphaWdqY2JqZmhmYm1zbWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0Njc4MTAsImV4cCI6MjA5NDA0MzgxMH0.FyfXGEzd2vSpRJ7F8-zm-5IxSgzA_8q4gB52__vKZ4c'; 
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bHphaWdqY2JqZmhmYm1zbWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0Njc4MTAsImV4cCI6MjA5NDA0MzgxMH0.FyfXGEzd2vSpRJ7F8-zm-5IxSgzA_8q4gB52__vKZ4c';
 const API_ENDPOINT = `${SUPABASE_URL}/rest/v1/impressoras`;
 
 let allPrinters = [];
@@ -130,9 +130,9 @@ async function savePrinter() {
   try {
     const marca = document.getElementById('fieldMarca').value.trim();
     const modelo = document.getElementById('fieldModelo').value.trim();
-    
-    const impressoraExistente = allPrinters.find(p => 
-      (p.marca || '').toLowerCase() === marca.toLowerCase() && 
+
+    const impressoraExistente = allPrinters.find(p =>
+      (p.marca || '').toLowerCase() === marca.toLowerCase() &&
       (p.modelo || '').toLowerCase() === modelo.toLowerCase()
     );
 
@@ -154,11 +154,11 @@ async function savePrinter() {
     // A MÁGICA DO SUPABASE ACONTECE AQUI
     // Se tem ID, edita usando a regra do Supabase (?id=eq.NUMERO). Se não, cadastra normal.
     const url = id ? `${API_ENDPOINT}?id=eq.${id}` : API_ENDPOINT;
-    const metodo = id ? 'PATCH' : 'POST'; 
+    const metodo = id ? 'PATCH' : 'POST';
 
     const response = await fetch(url, {
       method: metodo,
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
         'apikey': SUPABASE_KEY, // O crachá de acesso do Supabase
         'Authorization': `Bearer ${SUPABASE_KEY}` // Confirmação de segurança
@@ -171,8 +171,8 @@ async function savePrinter() {
     }
 
     alert(id ? 'Dados atualizados no Supabase!' : 'Novo modelo cadastrado no Supabase!');
-    
-    await loadPrinters(); 
+
+    await loadPrinters();
     resetForm();
 
   } catch (error) {
@@ -373,7 +373,7 @@ function resetForm() {
   elements.fieldConexao.value = 'USB';
   elements.fieldStatus.value = 'Homologada';
   elements.fieldAtivo.checked = true;
-  
+
   // VOLTA PARA O PADRÃO NÃO
   const cmdRadio = document.querySelector('input[name="imprimeComandas"][value="Não"]');
   if (cmdRadio) cmdRadio.checked = true;
@@ -383,7 +383,7 @@ function resetForm() {
 
   const qrRadio = document.querySelector('input[name="imprimeQr"][value="Não"]');
   if (qrRadio) qrRadio.checked = true;
-  
+
   elements.formTitle.textContent = 'Adicionar impressora';
   elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar modelo';
 }
