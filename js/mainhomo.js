@@ -375,8 +375,13 @@ function renderBrandSuggestions() {
 }
 
 function fillFormForEdit(id) {
-  const printer = allPrinters.find(item => item.id === id);
-  if (!printer) return;
+  // 1. CORREÇÃO DO ID: Convertendo os dois para texto igual no Delete
+  const printer = allPrinters.find(item => String(item.id) === String(id));
+  
+  if (!printer) {
+    console.error("Erro: Impressora não encontrada para edição.");
+    return;
+  }
 
   elements.fieldId.value = printer.id;
   elements.fieldMarca.value = printer.marca || '';
@@ -385,20 +390,26 @@ function fillFormForEdit(id) {
   elements.fieldConexao.value = printer.conexao || 'USB';
   elements.fieldStatus.value = printer.status || 'Homologada';
   elements.fieldObservacoes.value = stripHtml(printer.observacoes || '');
-  elements.fieldAtivo.checked = printer.ativo !== false;
+  if (elements.fieldAtivo) elements.fieldAtivo.checked = printer.ativo !== false;
 
-  // Selecionar os radio buttons corretos baseados nos dados salvos
-  const cmdRadio = document.querySelector(`input[name="imprimeComandas"][value="${printer.imprimeComandas || 'Não'}"]`);
+  // 2. CORREÇÃO DOS RADIOS (SIM/NÃO): 
+  // Lê o true/false do Supabase e traduz para marcar a bolinha certa
+  const valorCmd = printer.imprimeComandas ? 'Sim' : 'Não';
+  const cmdRadio = document.querySelector(`input[name="imprimeComandas"][value="${valorCmd}"]`);
   if (cmdRadio) cmdRadio.checked = true;
 
-  const nfeRadio = document.querySelector(`input[name="imprimeNfe"][value="${printer.imprimeNfe || 'Não'}"]`);
+  const valorNfe = printer.imprimeNfe ? 'Sim' : 'Não';
+  const nfeRadio = document.querySelector(`input[name="imprimeNfe"][value="${valorNfe}"]`);
   if (nfeRadio) nfeRadio.checked = true;
 
-  const qrRadio = document.querySelector(`input[name="imprimeQr"][value="${printer.imprimeQr || 'Não'}"]`);
+  const valorQr = printer.imprimeQr ? 'Sim' : 'Não';
+  const qrRadio = document.querySelector(`input[name="imprimeQr"][value="${valorQr}"]`);
   if (qrRadio) qrRadio.checked = true;
 
   elements.formTitle.textContent = 'Editar impressora';
   elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Atualizar modelo';
+  
+  // Rola a tela suavemente até o formulário
   document.getElementById('cadastro-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
   elements.fieldMarca.focus();
 }
