@@ -16,6 +16,7 @@ const BRAND_CONFIG = {
   'Bematech':  { icon: 'fa-receipt',       color: '#e63946' },
   'Elgin':     { icon: 'fa-bolt',          color: '#f97316' },
   'Epson':     { icon: 'fa-droplet',       color: '#0077b6' },
+  'ControliD':     { icon: 'fa-cogs',       color: '#03a303' },
 };
 
 // ── INIT ──────────────────────────────────────
