@@ -105,7 +105,15 @@ function setupEvents() {
 async function loadPrinters() {
   setLoading(true);
   try {
-    const response = await fetch(`${API_ENDPOINT}?limit=500&sort=modelo`);
+    // O FETCH MUDOU AQUI EMBAIXO:
+    const response = await fetch(`${API_ENDPOINT}?limit=500&sort=modelo`, {
+      method: 'GET',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    });
+    
     if (!response.ok) throw new Error('API indisponível');
     const result = await response.json();
     allPrinters = Array.isArray(result.data) ? result.data : [];
@@ -145,7 +153,7 @@ async function savePrinter() {
       tipo: document.getElementById('fieldTipo').value,
       conexao: document.getElementById('fieldConexao').value,
       status: document.getElementById('fieldStatus').value,
-      observacoes: document.getElementById('fieldObservacoes') ? document.getElementById('fieldObservacoes').value.trim() : '',
+      observacoes: document.getElementById('fieldobservacoes') ? document.getElementById('fieldObservacoes').value.trim() : '',
       imprimeComandas: document.querySelector('input[name="imprimeComandas"]:checked')?.value || 'Não',
       imprimeNfe: document.querySelector('input[name="imprimeNfe"]:checked')?.value || 'Não',
       imprimeQr: document.querySelector('input[name="imprimeQr"]:checked')?.value || 'Não'
@@ -167,7 +175,9 @@ async function savePrinter() {
     });
 
     if (!response.ok) {
-      throw new Error(`O Supabase recusou. Código: ${response.status}`);
+      const errorData = await response.json(); // Tenta ler a mensagem exata do banco
+      console.error("ERRO DETALHADO DO SUPABASE:", errorData);
+      throw new Error(`Erro ${response.status}: ${errorData.message || errorData.details || 'Falha ao salvar'}`);
     }
 
     alert(id ? 'Dados atualizados no Supabase!' : 'Novo modelo cadastrado no Supabase!');
@@ -194,7 +204,14 @@ async function deletePrinter(id) {
       allPrinters = allPrinters.filter(item => item.id !== id);
       persistLocalPrinters();
     } else {
-      const response = await fetch(`${API_ENDPOINT}/${id}`, { method: 'DELETE' });
+      // O FETCH MUDOU AQUI EMBAIXO:
+      const response = await fetch(`${API_ENDPOINT}?id=eq.${id}`, { 
+        method: 'DELETE',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`
+        }
+      });
       if (!response.ok && response.status !== 204) throw new Error('Falha ao excluir na API');
       await loadPrinters();
     }
