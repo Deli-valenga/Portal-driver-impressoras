@@ -1593,6 +1593,8 @@ ul.nacc li {
   font-weight: bold;
   font-size: 1.05rem; /* Texto maior */
   box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3) !important;
+  overflow: visible !important; /* Impede que a etiqueta seja cortada */
+  margin-top: 20px !important;  /* Empurra o card um pouco para baixo para dar espaço à etiqueta */
 }
 
 .card-deli-destaque .btn-download:hover {
