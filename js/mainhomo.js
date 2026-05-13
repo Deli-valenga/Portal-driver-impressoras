@@ -300,10 +300,11 @@ function createPrinterCard(printer) {
   const notes = stripHtml(printer.observacoes || '');
   const visibleLabel = printer.ativo === false ? '<span class="badge"><i class="fa-solid fa-eye-slash"></i> Oculto</span>' : '';
 
-  // LÊ DOS DADOS SALVOS NO OBJETO
-  const imprimeComandas = printer.imprimeComandas || 'Não';
-  const imprimeNfe = printer.imprimeNfe || 'Não';
-  const imprimeQr = printer.imprimeQr || 'Não';
+  // A CORREÇÃO ESTÁ AQUI: 
+  // O JavaScript lê o 'true' do banco e transforma na palavra 'Sim'. Se for 'false', vira 'Não'.
+  const imprimeComandas = printer.imprimeComandas ? 'Sim' : 'Não';
+  const imprimeNfe = printer.imprimeNfe ? 'Sim' : 'Não';
+  const imprimeQr = printer.imprimeQr ? 'Sim' : 'Não';
 
   return `
     <article class="printer-card" data-id="${escapeHtml(printer.id)}">
