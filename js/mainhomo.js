@@ -3,6 +3,7 @@ const API_ENDPOINT = 'tables/impressoras';
 const LOCAL_STORAGE_KEY = 'impressoras_homologadas_cache';
 
 let allPrinters = [];
+let deleteTargetId = null;
 let currentSearch = '';
 let currentStatus = 'all';
 let currentSort = 'modelo_asc';
