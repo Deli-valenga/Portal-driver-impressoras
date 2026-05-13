@@ -45,6 +45,9 @@ function cacheElements() {
   elements.statHomologadas = document.getElementById('statHomologadas');
   elements.statMarcas = document.getElementById('statMarcas');
   elements.toast = document.getElementById('toast');
+  elements.cadastroSection = document.getElementById('cadastro-section');
+  elements.btnToggleForm = document.getElementById('btnToggleForm');
+  elements.btnCloseForm = document.getElementById('btnCloseForm');
 }
 
 function setupEvents() {
@@ -100,6 +103,20 @@ function setupEvents() {
     if (deleteButton) {
       deletePrinter(deleteButton.dataset.id);
     }
+
+    // Evento para ABRIR o formulário ao clicar em Adicionar
+    if (elements.btnToggleForm) {
+      elements.btnToggleForm.addEventListener('click', event => {
+        event.preventDefault();
+        resetForm(); // Limpa se tiver algo velho escrito
+        openForm();  // Abre a aba
+      });
+    }
+
+    // Evento para FECHAR o formulário no "X"
+    if (elements.btnCloseForm) {
+      elements.btnCloseForm.addEventListener('click', closeForm);
+    }
   });
 }
 
@@ -119,7 +136,7 @@ async function loadPrinters() {
       const err = await response.json();
       throw new Error(`Erro do Supabase ao ler: ${err.message}`);
     }
-    
+
     // CORREÇÃO: O Supabase devolve direto um Array (uma lista), e não { data: [...] }
     const result = await response.json();
     allPrinters = Array.isArray(result) ? result : [];
@@ -150,10 +167,10 @@ async function savePrinter() {
 
     // 2. Define se é uma edição (ID existente) ou um novo cadastro
     const campoId = elements.fieldId.value;
-    
+
     // Busca se já existe uma impressora igual para evitar duplicados no banco
-    const impressoraExistente = allPrinters.find(p => 
-      (p.marca || '').toLowerCase() === payload.marca.toLowerCase() && 
+    const impressoraExistente = allPrinters.find(p =>
+      (p.marca || '').toLowerCase() === payload.marca.toLowerCase() &&
       (p.modelo || '').toLowerCase() === payload.modelo.toLowerCase()
     );
 
@@ -185,8 +202,8 @@ async function savePrinter() {
     // 4. Feedback de Sucesso
     showToast(id ? 'Dados atualizados com sucesso!' : 'Impressora cadastrada com sucesso!', 'success');
 
-    await loadPrinters(); // Recarrega a lista para atualizar os cards na tela
-    resetForm();          // Limpa o formulário e volta o título para "Adicionar"
+    await loadPrinters();
+    closeForm();         // Limpa o formulário e volta o título para "Adicionar"
 
   } catch (error) {
     console.error("ERRO AO SALVAR:", error);
@@ -199,7 +216,7 @@ async function savePrinter() {
 async function deletePrinter(id) {
   // 1. A CORREÇÃO ESTÁ AQUI: Transformamos ambos em String (texto) para comparar com segurança
   const printer = allPrinters.find(item => String(item.id) === String(id));
-  
+
   if (!printer) {
     console.error("Erro: Impressora não encontrada na lista com o ID:", id);
     return;
@@ -213,20 +230,20 @@ async function deletePrinter(id) {
       allPrinters = allPrinters.filter(item => String(item.id) !== String(id));
       persistLocalPrinters();
     } else {
-      const response = await fetch(`${API_ENDPOINT}?id=eq.${id}`, { 
+      const response = await fetch(`${API_ENDPOINT}?id=eq.${id}`, {
         method: 'DELETE',
         headers: {
           'apikey': SUPABASE_KEY,
           'Authorization': `Bearer ${SUPABASE_KEY}`
         }
       });
-      
+
       // Captura o erro exato se o Supabase recusar a exclusão
       if (!response.ok && response.status !== 204) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Falha ao excluir no Supabase');
       }
-      
+
       await loadPrinters();
     }
 
@@ -238,7 +255,7 @@ async function deletePrinter(id) {
 
     showToast('Modelo excluído com sucesso.', 'success');
     if (elements.fieldId.value === String(id)) resetForm();
-    
+
   } catch (error) {
     console.error("ERRO AO EXCLUIR NO SUPABASE:", error);
     showToast('Não foi possível excluir. Tente novamente.', 'error');
@@ -318,8 +335,8 @@ function renderPrinters() {
 
   // 1. Atualiza o texto do contador (ex: "2 modelos encontrados")
   if (elements.resultsCount) {
-    elements.resultsCount.textContent = filtered.length === 1 
-      ? '1 modelo encontrado' 
+    elements.resultsCount.textContent = filtered.length === 1
+      ? '1 modelo encontrado'
       : `${filtered.length} modelos encontrados`;
   }
 
@@ -379,164 +396,181 @@ function renderBrandSuggestions() {
 }
 
 function fillFormForEdit(id) {
-  // 1. CORREÇÃO DO ID: Convertendo os dois para texto igual no Delete
-  const printer = allPrinters.find(item => String(item.id) === String(id));
-  
-  if (!printer) {
-    console.error("Erro: Impressora não encontrada para edição.");
-    return;
+
+  function fillFormForEdit(id) {
+    openForm();
+
+    // 1. CORREÇÃO DO ID: Convertendo os dois para texto igual no Delete
+    const printer = allPrinters.find(item => String(item.id) === String(id));
+
+    if (!printer) {
+      console.error("Erro: Impressora não encontrada para edição.");
+      return;
+    }
+
+    elements.fieldId.value = printer.id;
+    elements.fieldMarca.value = printer.marca || '';
+    elements.fieldModelo.value = printer.modelo || '';
+    elements.fieldTipo.value = printer.tipo || 'Térmica';
+    elements.fieldConexao.value = printer.conexao || 'USB';
+    elements.fieldStatus.value = printer.status || 'Homologada';
+    elements.fieldObservacoes.value = stripHtml(printer.observacoes || '');
+    if (elements.fieldAtivo) elements.fieldAtivo.checked = printer.ativo !== false;
+
+    // 2. CORREÇÃO DOS RADIOS (SIM/NÃO): 
+    // Lê o true/false do Supabase e traduz para marcar a bolinha certa
+    const valorCmd = printer.imprimeComandas ? 'Sim' : 'Não';
+    const cmdRadio = document.querySelector(`input[name="imprimeComandas"][value="${valorCmd}"]`);
+    if (cmdRadio) cmdRadio.checked = true;
+
+    const valorNfe = printer.imprimeNfe ? 'Sim' : 'Não';
+    const nfeRadio = document.querySelector(`input[name="imprimeNfe"][value="${valorNfe}"]`);
+    if (nfeRadio) nfeRadio.checked = true;
+
+    const valorQr = printer.imprimeQr ? 'Sim' : 'Não';
+    const qrRadio = document.querySelector(`input[name="imprimeQr"][value="${valorQr}"]`);
+    if (qrRadio) qrRadio.checked = true;
+
+    elements.formTitle.textContent = 'Editar impressora';
+    elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Atualizar modelo';
+
+    // Rola a tela suavemente até o formulário
+    document.getElementById('cadastro-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    elements.fieldMarca.focus();
   }
 
-  elements.fieldId.value = printer.id;
-  elements.fieldMarca.value = printer.marca || '';
-  elements.fieldModelo.value = printer.modelo || '';
-  elements.fieldTipo.value = printer.tipo || 'Térmica';
-  elements.fieldConexao.value = printer.conexao || 'USB';
-  elements.fieldStatus.value = printer.status || 'Homologada';
-  elements.fieldObservacoes.value = stripHtml(printer.observacoes || '');
-  if (elements.fieldAtivo) elements.fieldAtivo.checked = printer.ativo !== false;
+  function resetForm() {
+    elements.printerForm.reset();
+    elements.fieldId.value = '';
+    elements.fieldTipo.value = 'Térmica';
+    elements.fieldConexao.value = 'USB';
+    elements.fieldStatus.value = 'Homologada';
+    elements.fieldAtivo.checked = true;
 
-  // 2. CORREÇÃO DOS RADIOS (SIM/NÃO): 
-  // Lê o true/false do Supabase e traduz para marcar a bolinha certa
-  const valorCmd = printer.imprimeComandas ? 'Sim' : 'Não';
-  const cmdRadio = document.querySelector(`input[name="imprimeComandas"][value="${valorCmd}"]`);
-  if (cmdRadio) cmdRadio.checked = true;
+    // VOLTA PARA O PADRÃO NÃO
+    const cmdRadio = document.querySelector('input[name="imprimeComandas"][value="Não"]');
+    if (cmdRadio) cmdRadio.checked = true;
 
-  const valorNfe = printer.imprimeNfe ? 'Sim' : 'Não';
-  const nfeRadio = document.querySelector(`input[name="imprimeNfe"][value="${valorNfe}"]`);
-  if (nfeRadio) nfeRadio.checked = true;
+    const nfeRadio = document.querySelector('input[name="imprimeNfe"][value="Não"]');
+    if (nfeRadio) nfeRadio.checked = true;
 
-  const valorQr = printer.imprimeQr ? 'Sim' : 'Não';
-  const qrRadio = document.querySelector(`input[name="imprimeQr"][value="${valorQr}"]`);
-  if (qrRadio) qrRadio.checked = true;
+    const qrRadio = document.querySelector('input[name="imprimeQr"][value="Não"]');
+    if (qrRadio) qrRadio.checked = true;
 
-  elements.formTitle.textContent = 'Editar impressora';
-  elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Atualizar modelo';
-  
-  // Rola a tela suavemente até o formulário
-  document.getElementById('cadastro-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  elements.fieldMarca.focus();
-}
-
-function resetForm() {
-  elements.printerForm.reset();
-  elements.fieldId.value = '';
-  elements.fieldTipo.value = 'Térmica';
-  elements.fieldConexao.value = 'USB';
-  elements.fieldStatus.value = 'Homologada';
-  elements.fieldAtivo.checked = true;
-
-  // VOLTA PARA O PADRÃO NÃO
-  const cmdRadio = document.querySelector('input[name="imprimeComandas"][value="Não"]');
-  if (cmdRadio) cmdRadio.checked = true;
-
-  const nfeRadio = document.querySelector('input[name="imprimeNfe"][value="Não"]');
-  if (nfeRadio) nfeRadio.checked = true;
-
-  const qrRadio = document.querySelector('input[name="imprimeQr"][value="Não"]');
-  if (qrRadio) qrRadio.checked = true;
-
-  elements.formTitle.textContent = 'Adicionar impressora';
-  elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar modelo';
-}
-
-function setLoading(isLoading) {
-  elements.loadingState.style.display = isLoading ? 'grid' : 'none';
-  elements.printersGrid.style.display = isLoading ? 'none' : 'grid';
-}
-
-function setSaving(isSaving) {
-  elements.btnSavePrinter.disabled = isSaving;
-  if (isSaving) elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
-}
-
-function showToast(message, type = 'info') {
-  elements.toast.textContent = message;
-  elements.toast.className = `toast visible ${type}`;
-  window.clearTimeout(showToast.timeout);
-  showToast.timeout = window.setTimeout(() => {
-    elements.toast.className = 'toast';
-  }, 3200);
-}
-
-function readLocalPrinters() {
-  try {
-    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
-  } catch {
-    return [];
+    elements.formTitle.textContent = 'Adicionar impressora';
+    elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Salvar modelo';
   }
-}
 
-function persistLocalPrinters() {
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allPrinters));
-}
+  function setLoading(isLoading) {
+    elements.loadingState.style.display = isLoading ? 'grid' : 'none';
+    elements.printersGrid.style.display = isLoading ? 'none' : 'grid';
+  }
 
-function getInitialExamples() {
-  const now = Date.now();
-  return [
-    {
-      id: crypto.randomUUID(),
-      marca: 'Epson',
-      modelo: 'TM-T20X',
-      tipo: 'Térmica',
-      conexao: 'USB/Ethernet',
-      status: 'Homologada',
-      observacoes: 'Modelo térmico recomendado para pontos de venda com conexão de rede.',
-      ativo: true,
-      created_at: now - 3000,
-    },
-    {
-      id: crypto.randomUUID(),
-      marca: 'Elgin',
-      modelo: 'i9 Full',
-      tipo: 'Térmica',
-      conexao: 'USB',
-      status: 'Homologada',
-      observacoes: 'Compatível com ambientes Windows e uso em emissão de comprovantes.',
-      ativo: true,
-      created_at: now - 2000,
-    },
-    {
-      id: crypto.randomUUID(),
-      marca: 'Bematech',
-      modelo: 'MP-4200 TH',
-      tipo: 'Térmica',
-      conexao: 'USB',
-      status: 'Em análise',
-      observacoes: 'Validar versão de firmware antes da implantação.',
-      ativo: true,
-      created_at: now - 1000,
-    },
-  ];
-}
+  function setSaving(isSaving) {
+    elements.btnSavePrinter.disabled = isSaving;
+    if (isSaving) elements.btnSavePrinter.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+  }
 
-function getStatusClass(status = '') {
-  const normalized = normalizeText(status);
-  if (normalized === 'em análise') return 'analysis';
-  if (normalized === 'reprovada') return 'rejected';
-  if (normalized === 'descontinuada') return 'discontinued';
-  return '';
-}
+  function showToast(message, type = 'info') {
+    elements.toast.textContent = message;
+    elements.toast.className = `toast visible ${type}`;
+    window.clearTimeout(showToast.timeout);
+    showToast.timeout = window.setTimeout(() => {
+      elements.toast.className = 'toast';
+    }, 3200);
+  }
 
-function normalizeText(value = '') {
-  return String(value).trim();
-}
+  function readLocalPrinters() {
+    try {
+      return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+    } catch {
+      return [];
+    }
+  }
 
-function compareText(a = '', b = '') {
-  return String(a || '').localeCompare(String(b || ''), 'pt-BR', { sensitivity: 'base' });
-}
+  function persistLocalPrinters() {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allPrinters));
+  }
 
-function stripHtml(value = '') {
-  const temp = document.createElement('div');
-  temp.innerHTML = value;
-  return temp.textContent || temp.innerText || '';
-}
+  function getInitialExamples() {
+    const now = Date.now();
+    return [
+      {
+        id: crypto.randomUUID(),
+        marca: 'Epson',
+        modelo: 'TM-T20X',
+        tipo: 'Térmica',
+        conexao: 'USB/Ethernet',
+        status: 'Homologada',
+        observacoes: 'Modelo térmico recomendado para pontos de venda com conexão de rede.',
+        ativo: true,
+        created_at: now - 3000,
+      },
+      {
+        id: crypto.randomUUID(),
+        marca: 'Elgin',
+        modelo: 'i9 Full',
+        tipo: 'Térmica',
+        conexao: 'USB',
+        status: 'Homologada',
+        observacoes: 'Compatível com ambientes Windows e uso em emissão de comprovantes.',
+        ativo: true,
+        created_at: now - 2000,
+      },
+      {
+        id: crypto.randomUUID(),
+        marca: 'Bematech',
+        modelo: 'MP-4200 TH',
+        tipo: 'Térmica',
+        conexao: 'USB',
+        status: 'Em análise',
+        observacoes: 'Validar versão de firmware antes da implantação.',
+        ativo: true,
+        created_at: now - 1000,
+      },
+    ];
+  }
 
-function escapeHtml(value = '') {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
+  function getStatusClass(status = '') {
+    const normalized = normalizeText(status);
+    if (normalized === 'em análise') return 'analysis';
+    if (normalized === 'reprovada') return 'rejected';
+    if (normalized === 'descontinuada') return 'discontinued';
+    return '';
+  }
+
+  function normalizeText(value = '') {
+    return String(value).trim();
+  }
+
+  function compareText(a = '', b = '') {
+    return String(a || '').localeCompare(String(b || ''), 'pt-BR', { sensitivity: 'base' });
+  }
+
+  function stripHtml(value = '') {
+    const temp = document.createElement('div');
+    temp.innerHTML = value;
+    return temp.textContent || temp.innerText || '';
+  }
+
+  function escapeHtml(value = '') {
+    return String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+  function openForm() {
+    elements.cadastroSection.style.display = 'block'; // Mostra o formulário
+    // Dá um pequeno atraso só para o navegador desenhar a tela antes de rolar
+    setTimeout(() => {
+      elements.cadastroSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      elements.fieldMarca.focus();
+    }, 50);
+  }
+
+  function closeForm() {
+    elements.cadastroSection.style.display = 'none'; // Esconde o formulário
+    resetForm(); // Limpa os dados
+  }

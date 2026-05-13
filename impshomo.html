@@ -27,8 +27,7 @@
       </a>
       <nav class="header-actions" aria-label="Ações principais">
         <a class="header-link" href="#catalogo-section"><i class="fa-solid fa-magnifying-glass"></i> Buscar</a>
-        <a class="header-link header-link-primary" href="#cadastro-section"><i class="fa-solid fa-plus"></i>
-          Adicionar</a>
+        <a class="header-link header-link-primary" href="#cadastro-section" id="btnToggleForm"><i class="fa-solid fa-plus"></i> Adicionar</a>
         <a href="index.html" class="header-link"><i class="fa-solid fa-house"></i> Início</a>
         <a href="admin.html" class="header-link"><i class="fa-solid fa-gear"></i> Administrar</a>
       </nav>
@@ -124,14 +123,16 @@
           </div>
         </section>
 
-        <aside class="form-card" id="cadastro-section" aria-labelledby="form-title">
-          <div class="section-heading compact">
+        <aside class="form-card" id="cadastro-section" aria-labelledby="form-title" style="display: none;">
+          <div class="section-heading compact" style="display: flex; justify-content: space-between; align-items: flex-start;">
             <div>
               <span class="section-kicker">Cadastro</span>
               <h2 id="form-title">Adicionar impressora</h2>
             </div>
+            <button type="button" id="btnCloseForm" aria-label="Fechar formulário" style="background: none; border: none; font-size: 1.2rem; color: #64748b; cursor: pointer; padding: 5px;">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
           </div>
-
           <form id="printerForm" novalidate>
             <input type="hidden" id="fieldId" />
 
