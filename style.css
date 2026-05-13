@@ -1538,3 +1538,41 @@ ul.nacc li {
 .menu div .thumb {
   border-bottom: 1px solid rgb(68, 44, 0) !important; 
 }
+/* =========================================
+   DESTAQUE ESPECIAL - SOFTWARE DELI
+   ========================================= */
+.card-deli-destaque {
+  border: 2px solid #f59e0b !important; /* Borda laranja chamativa */
+  background: linear-gradient(to bottom right, #fffbeb, #ffffff) !important; /* Fundo levemente amarelado/dourado */
+  box-shadow: 0 8px 16px rgba(245, 158, 11, 0.15) !important;
+  position: relative;
+}
+
+/* Etiqueta de "Principal" que flutua no topo do card */
+.card-deli-destaque::before {
+  content: "⭐ Sistema Principal";
+  position: absolute;
+  top: -14px;
+  right: 16px;
+  background-color: #f59e0b;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);
+  z-index: 10;
+}
+
+/* Faz o botão de download desse card ficar laranja também para combinar */
+.card-deli-destaque .btn-download {
+  background-color: #f59e0b !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.card-deli-destaque .btn-download:hover {
+  background-color: #d97706 !important;
+}

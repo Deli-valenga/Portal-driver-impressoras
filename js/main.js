@@ -85,8 +85,14 @@ function createCardHTML(d) {
   const marca = d.marca || 'Genérica';
   const desc  = stripHTML(d.descricao || '');
 
+ // 1. A LÓGICA DE DESTAQUE ENTRA AQUI, BEM ANTES DO RETURN:
+  // Verifica se o nome do driver contém a palavra "deli"
+  const isDeli = d.nome && d.nome.toLowerCase().includes('deli');
+  const classeDestaque = isDeli ? 'card-deli-destaque' : '';
+
+  // 2. O RETURN GANHA A VARIÁVEL ${classeDestaque} NA CLASSE DA TAG <article>
   return `
-    <article class="driver-card" data-id="${d.id}" data-brand="${marca}" role="button" tabindex="0"
+    <article class="driver-card ${classeDestaque}" data-id="${d.id}" data-brand="${marca}" role="button" tabindex="0"
              aria-label="Driver ${d.nome}, marca ${marca}">
       <div class="card-header">
         <div class="card-brand-icon" style="background:${cfg.color}18; color:${cfg.color}">
@@ -115,7 +121,6 @@ function createCardHTML(d) {
         </button>
       </div>
     </article>`;
-}
 
 // ── FILTERS ───────────────────────────────────
 function getFiltered() {
