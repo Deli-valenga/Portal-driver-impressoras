@@ -1,6 +1,7 @@
 /* Impressoras Homologadas - lógica da página */
-const API_ENDPOINT = 'tables/impressoras';
-const LOCAL_STORAGE_KEY = 'impressoras_homologadas_cache';
+const SUPABASE_URL = 'https://kvlzaigjcbjfhfbmsmfw.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bHphaWdqY2JqZmhmYm1zbWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0Njc4MTAsImV4cCI6MjA5NDA0MzgxMH0.FyfXGEzd2vSpRJ7F8-zm-5IxSgzA_8q4gB52__vKZ4c'; 
+const API_ENDPOINT = `${SUPABASE_URL}/rest/v1/impressoras`;
 
 let allPrinters = [];
 let deleteTargetId = null;
@@ -127,22 +128,17 @@ async function loadPrinters() {
 
 async function savePrinter() {
   try {
-    // 1. COLETAR DADOS PRINCIPAIS
     const marca = document.getElementById('fieldMarca').value.trim();
     const modelo = document.getElementById('fieldModelo').value.trim();
     
-    // 2. VERIFICAÇÃO DE DUPLICIDADE (Ignora maiúsculas/minúsculas e evita erros)
     const impressoraExistente = allPrinters.find(p => 
       (p.marca || '').toLowerCase() === marca.toLowerCase() && 
       (p.modelo || '').toLowerCase() === modelo.toLowerCase()
     );
 
-    // 3. DEFINIR O ID (Atualização ou Novo Cadastro)
     const campoId = document.getElementById('fieldId').value;
     const id = impressoraExistente ? impressoraExistente.id : campoId;
 
-    // 4. MONTAR O PACOTE DE DADOS (Baseado exatamente no seu HTML)
-    // Usamos querySelector para os Radios e um verificador de segurança para as observações
     const payload = {
       marca,
       modelo,
@@ -155,98 +151,35 @@ async function savePrinter() {
       imprimeQr: document.querySelector('input[name="imprimeQr"]:checked')?.value || 'Não'
     };
 
-    // 5. ENVIAR PARA O BACK-END (O seu Banco de Dados)
-    const url = id ? `${API_ENDPOINT}/${id}` : API_ENDPOINT;
-    const metodo = id ? 'PUT' : 'POST';
+    // A MÁGICA DO SUPABASE ACONTECE AQUI
+    // Se tem ID, edita usando a regra do Supabase (?id=eq.NUMERO). Se não, cadastra normal.
+    const url = id ? `${API_ENDPOINT}?id=eq.${id}` : API_ENDPOINT;
+    const metodo = id ? 'PATCH' : 'POST'; 
 
     const response = await fetch(url, {
       method: metodo,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY, // O crachá de acesso do Supabase
+        'Authorization': `Bearer ${SUPABASE_KEY}` // Confirmação de segurança
+      },
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      throw new Error(`Falha na API. O servidor retornou o código: ${response.status}`);
+      throw new Error(`O Supabase recusou. Código: ${response.status}`);
     }
 
-    // 6. SUCESSO!
-    alert(id ? 'Dados do modelo atualizados com sucesso no banco!' : 'Novo modelo cadastrado no banco!');
+    alert(id ? 'Dados atualizados no Supabase!' : 'Novo modelo cadastrado no Supabase!');
     
-    // Atualiza a tela com as informações frescas do banco
     await loadPrinters(); 
     resetForm();
 
   } catch (error) {
-    // Captura qualquer erro de digitação no código ou falha de rede
-    console.error("ERRO DETALHADO AO SALVAR:", error);
-    alert('Erro ao salvar. Verifique o Console (F12) para os detalhes.');
+    console.error("ERRO AO SALVAR NO SUPABASE:", error);
+    alert('Erro ao salvar. Verifique o Console (F12).');
   }
 }
-/*
-async function savePrinter() {
-  const payload = getFormPayload();
-  const marca = document.getElementById('fieldMarca').value.trim();
-  const modelo = document.getElementById('fieldModelo').value.trim();
-  const comanda = document.getElementById('imprimeComandasSim').checked ? 'Sim' : 'Não';
-  const nfe = document.getElementById('imprimeNfeSim').checked ? 'Sim' : 'Não';
-  const qr = document.getElementById('imprimeQrSim').checked ? 'Sim' : 'Não';
-  const tipo = document.getElementById('fieldTipo').value;
-  const conexao = document.getElementById('fieldConexao').value;
-  const status = document.getElementById('fieldStatus').value;  
-  const obs = document.getElementById('fieldObs').value.trim();
-
-  const dadosParaEnviar = {
-    marca: marca,
-    modelo: modelo,
-    imprimeComandas: comanda,
-    imprimeNfe: nfe,
-    imprimeQr: qr,
-    tipo: tipo,
-    conexao: conexao,
-    status: status,
-    observacoes: obs
-  };
-
-  if (!marca)  { showToast('A marca é obrigatória.', 'error'); return; }
-  if (!modelo) { showToast('Selecione o modelo.', 'error'); return; }
-
-  const id = elements.fieldId.value;
-  setSaving(true);
-
-  try {
-    if (usingLocalFallback) {
-      if (id) {
-        allPrinters = allPrinters.map(printer => printer.id === id ? { ...printer, ...payload, id, updated_at: Date.now() } : printer);
-      } else {
-        allPrinters.unshift({ ...payload, id: crypto.randomUUID(), created_at: Date.now(), updated_at: Date.now() });
-      }
-      persistLocalPrinters();
-    } else {
-      const response = await fetch(id ? `${API_ENDPOINT}/${id}` : API_ENDPOINT, {
-        method: id ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) throw new Error('Falha ao salvar na API');
-      await loadPrinters();
-    }
-
-    if (usingLocalFallback) {
-      renderPrinters();
-      renderStats();
-      renderBrandSuggestions();
-    }
-
-    showToast(id ? 'Modelo atualizado com sucesso.' : 'Modelo adicionado com sucesso.', 'success');
-    resetForm();
-  } catch (error) {
-    console.error(error);
-    showToast('Não foi possível salvar. Tente novamente.', 'error');
-  } finally {
-    setSaving(false);
-  }
-}
-*/
 
 
 async function deletePrinter(id) {
