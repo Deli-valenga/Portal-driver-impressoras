@@ -249,7 +249,6 @@ function getFormPayload() {
   const marca = elements.fieldMarca.value.trim();
   const modelo = elements.fieldModelo.value.trim();
 
-  // Validação simples para não enviar campos vazios
   if (!marca) {
     showToast('Informe a marca da impressora.', 'error');
     elements.fieldMarca.focus();
@@ -269,12 +268,13 @@ function getFormPayload() {
     conexao: elements.fieldConexao.value,
     status: elements.fieldStatus.value,
     observacoes: elements.fieldObservacoes.value.trim(),
-    // REMOVEMOS A LINHA 'ativo' DAQUI PARA EVITAR O ERRO 400
+    // REMOVA A LINHA DO ATIVO DAQUI!
     imprimeComandas: document.querySelector('input[name="imprimeComandas"]:checked')?.value === 'Sim',
     imprimeNfe: document.querySelector('input[name="imprimeNfe"]:checked')?.value === 'Sim',
     imprimeQr: document.querySelector('input[name="imprimeQr"]:checked')?.value === 'Sim'
   };
 }
+
 function createPrinterCard(printer) {
   const statusClass = getStatusClass(printer.status);
   const notes = stripHtml(printer.observacoes || '');
