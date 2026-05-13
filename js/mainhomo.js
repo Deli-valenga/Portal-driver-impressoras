@@ -304,7 +304,48 @@ function renderPrinters() {
   if (elements.printersGrid) elements.printersGrid.style.display = hasResults ? 'grid' : 'none';
 
   if (elements.printersGrid) {
-    elements.printersGrid.innerHTML = filtered.map(printer => createPrinterCard(printer)).join('');
+    // 1. Cria um organizador (Objeto) para separar por marca
+    const impressorasPorMarca = {};
+    
+    filtered.forEach(printer => {
+      // Pega a marca ou joga para "Outros" se estiver vazio
+      const marca = printer.marca ? printer.marca.trim() : 'Outros';
+      
+      if (!impressorasPorMarca[marca]) {
+        impressorasPorMarca[marca] = [];
+      }
+      // Coloca a impressora na "gaveta" correta
+      impressorasPorMarca[marca].push(printer);
+    });
+
+    // 2. Pega o nome das marcas e organiza em ordem alfabética
+    const marcasOrdenadas = Object.keys(impressorasPorMarca).sort(compareText);
+
+    // 3. Monta o HTML final com os Títulos e os Cards
+    let htmlFinal = '';
+
+    marcasOrdenadas.forEach(marca => {
+      // Adiciona o título da Marca (com estilo para ocupar toda a largura da tela)
+      htmlFinal += `
+        <div class="brand-group-header" style="grid-column: 1 / -1; margin-top: 1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">
+          <h3 style="margin: 0; color: #1e293b; font-size: 1.25rem; display: flex; align-items: center;">
+            <i class="fa-solid fa-layer-group" style="color: #64748b; font-size: 1rem; margin-right: 8px;"></i> 
+            ${escapeHtml(marca)}
+            <span style="background: #f1f5f9; color: #64748b; font-size: 0.8rem; font-weight: normal; padding: 2px 8px; border-radius: 12px; margin-left: 12px;">
+              ${impressorasPorMarca[marca].length}
+            </span>
+          </h3>
+        </div>
+      `;
+      
+      // Adiciona os cards que pertencem a essa marca logo abaixo do título
+      htmlFinal += impressorasPorMarca[marca]
+        .map(printer => createPrinterCard(printer))
+        .join('');
+    });
+
+    // 4. Joga tudo na tela
+    elements.printersGrid.innerHTML = htmlFinal;
   }
 }
 
