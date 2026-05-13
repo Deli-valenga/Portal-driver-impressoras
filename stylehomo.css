@@ -24,26 +24,30 @@
 /* =========================================
    DUAS CORES DE FUNDO (TOPO E CATÁLOGO)
    ========================================= */
+/* =========================================
+   DUAS CORES DE FUNDO + FONTE CORRETA
+   ========================================= */
 
-/* 1. O fundo de toda a página (que vai aparecer na zona das impressoras) */
+/* 1. Fonte correta e fundo claro (creme) para a parte de baixo (cartões) */
 html, body {
-  /* Um tom creme/cinza super clarinho para destacar os cartões brancos */
-  background-color: #f8fafc !important; 
+  font-family: var(--font) !important;
+  color: var(--ink) !important; /* Cor do texto base */
+  background-color: #aa6600 !important; 
   background-image: none !important;
 }
 
-/* 2. Garante que as áreas de baixo ficam transparentes para mostrar o fundo #f8fafc */
+/* 2. Garante que as áreas das impressoras sejam transparentes para mostrar o fundo creme */
 main, .quick-filters-section, .content-section {
+  font-family: var(--font) !important;
   background-color: transparent !important;
   background-image: none !important;
 }
 
 /* 3. A cor EXCLUSIVA para a parte de cima (Área do Texto Gigante) */
 .hero-section {
-  background-color: #ffebe0 !important; /* O seu tom pêssego */
-  /* Um gradiente que começa pêssego e desvanece suavemente para a divisão */
-  background-image: linear-gradient(to bottom, #ffebe0 0%, #fff2e8 100%) !important;
-  /* Uma linha fina para separar elegantemente as duas áreas */
+  font-family: var(--font) !important;
+  background-color: #e396fd !important; /* O tom pêssego */
+  background-image: linear-gradient(to bottom, #2c0055 0%, #6522b1 100%) !important;
   border-bottom: 1px solid #fce3d4 !important; 
 }
 
