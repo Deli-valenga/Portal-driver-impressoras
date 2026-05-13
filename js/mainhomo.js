@@ -147,16 +147,22 @@ async function savePrinter() {
     const campoId = document.getElementById('fieldId').value;
     const id = impressoraExistente ? impressoraExistente.id : campoId;
 
+ // 4. MONTAR O PACOTE DE DADOS
     const payload = {
       marca,
       modelo,
       tipo: document.getElementById('fieldTipo').value,
       conexao: document.getElementById('fieldConexao').value,
       status: document.getElementById('fieldStatus').value,
-      observacoes: document.getElementById('fieldobservacoes') ? document.getElementById('fieldObservacoes').value.trim() : '',
-      imprimeComandas: document.querySelector('input[name="imprimeComandas"]:checked')?.value || 'Não',
-      imprimeNfe: document.querySelector('input[name="imprimeNfe"]:checked')?.value || 'Não',
-      imprimeQr: document.querySelector('input[name="imprimeQr"]:checked')?.value || 'Não'
+      observacoes: document.getElementById('fieldObservacoes') ? document.getElementById('fieldObservacoes').value.trim() : '',
+      
+      // A MÁGICA DA TRADUÇÃO: Se for igual a 'Sim', vira true. Se não, vira false.
+      imprimeComandas: document.querySelector('input[name="imprimeComandas"]:checked')?.value === 'Sim',
+      imprimeNfe: document.querySelector('input[name="imprimeNfe"]:checked')?.value === 'Sim',
+      imprimeQr: document.querySelector('input[name="imprimeQr"]:checked')?.value === 'Sim',
+      
+      // Enviando o campo ativo como true (caso o banco exija)
+      ativo: document.getElementById('fieldAtivo') ? document.getElementById('fieldAtivo').checked : true
     };
 
     // A MÁGICA DO SUPABASE ACONTECE AQUI
@@ -255,9 +261,9 @@ function getFormPayload() {
     status: elements.fieldStatus.value,
     observacoes: elements.fieldObservacoes.value.trim(),
     ativo: elements.fieldAtivo.checked,
-    imprimeComandas: document.querySelector('input[name="imprimeComandas"]:checked')?.value || 'Não',
-    imprimeNfe: document.querySelector('input[name="imprimeNfe"]:checked')?.value || 'Não',
-    imprimeQr: document.querySelector('input[name="imprimeQr"]:checked')?.value || 'Não'
+    imprimeComandas: document.querySelector('input[name="imprimeComandas"]:checked')?.value === 'Sim',
+    imprimeNfe: document.querySelector('input[name="imprimeNfe"]:checked')?.value === 'Sim',
+    imprimeQr: document.querySelector('input[name="imprimeQr"]:checked')?.value === 'Sim'
   };
 }
 
