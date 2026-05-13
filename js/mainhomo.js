@@ -2,6 +2,7 @@
 const SUPABASE_URL = 'https://kvlzaigjcbjfhfbmsmfw.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bHphaWdqY2JqZmhmYm1zbWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0Njc4MTAsImV4cCI6MjA5NDA0MzgxMH0.FyfXGEzd2vSpRJ7F8-zm-5IxSgzA_8q4gB52__vKZ4c';
 const API_ENDPOINT = `${SUPABASE_URL}/rest/v1/impressoras`;
+const LOCAL_STORAGE_KEY = 'impressoras_fallback';
 
 let allPrinters = [];
 let deleteTargetId = null;
@@ -105,27 +106,33 @@ function setupEvents() {
 async function loadPrinters() {
   setLoading(true);
   try {
-    // O FETCH MUDOU AQUI EMBAIXO:
-    const response = await fetch(`${API_ENDPOINT}?limit=500&sort=modelo`, {
+    // CORREÇÃO: O Supabase usa '?select=*&order=modelo.asc'
+    const response = await fetch(`${API_ENDPOINT}?select=*&order=modelo.asc`, {
       method: 'GET',
       headers: {
         'apikey': SUPABASE_KEY,
         'Authorization': `Bearer ${SUPABASE_KEY}`
       }
     });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(`Erro do Supabase ao ler: ${err.message}`);
+    }
     
-    if (!response.ok) throw new Error('API indisponível');
+    // CORREÇÃO: O Supabase devolve direto um Array (uma lista), e não { data: [...] }
     const result = await response.json();
-    allPrinters = Array.isArray(result.data) ? result.data : [];
+    allPrinters = Array.isArray(result) ? result : [];
     usingLocalFallback = false;
+
   } catch (error) {
+    console.warn("Falha ao carregar do Supabase. Ativando modo local.", error);
     usingLocalFallback = true;
     allPrinters = readLocalPrinters();
     if (!allPrinters.length) {
       allPrinters = getInitialExamples();
       persistLocalPrinters();
     }
-    console.info('Usando armazenamento local temporário para desenvolvimento.', error);
   } finally {
     setLoading(false);
     renderPrinters();
@@ -133,7 +140,6 @@ async function loadPrinters() {
     renderBrandSuggestions();
   }
 }
-
 async function savePrinter() {
   try {
     const marca = document.getElementById('fieldMarca').value.trim();
