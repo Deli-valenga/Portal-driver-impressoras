@@ -143,25 +143,26 @@ async function loadPrinters() {
 
 async function savePrinter() {
   try {
-    // 1. Coleta e Valida os dados usando a função que você já tem no arquivo
+    // 1. Coleta e Valida os dados usando a função getFormPayload
     const payload = getFormPayload();
-    if (!payload) return; // Se retornar null (campos vazios), para aqui.
+    if (!payload) return; // Se os campos obrigatórios estiverem vazios, a função para aqui
 
-    setSaving(true); // Ativa o efeito visual de "Salvando..."
+    setSaving(true); // Ativa o efeito visual de "Salvando..." no botão
 
-    // 2. Define se é uma edição ou um novo cadastro
+    // 2. Define se é uma edição (ID existente) ou um novo cadastro
     const campoId = elements.fieldId.value;
     
-    // Verifica se já existe uma impressora igual para evitar duplicados
+    // Busca se já existe uma impressora igual para evitar duplicados no banco
     const impressoraExistente = allPrinters.find(p => 
       (p.marca || '').toLowerCase() === payload.marca.toLowerCase() && 
       (p.modelo || '').toLowerCase() === payload.modelo.toLowerCase()
     );
 
-    // Prioriza o ID da existente ou o ID que está no campo oculto do formulário
+    // Prioriza o ID da existente (para atualizar) ou o ID que está no campo oculto do formulário
     const id = impressoraExistente ? impressoraExistente.id : campoId;
 
-    // 3. Configura a comunicação com o Supabase
+    // 3. Configura a URL e o Método para o Supabase
+    // Se tem ID, usamos PATCH (editar). Se não tem, usamos POST (criar).
     const url = id ? `${API_ENDPOINT}?id=eq.${id}` : API_ENDPOINT;
     const metodo = id ? 'PATCH' : 'POST';
 
@@ -182,20 +183,19 @@ async function savePrinter() {
       throw new Error(errorData.message || 'Erro ao comunicar com o banco');
     }
 
-    // 4. Sucesso!
+    // 4. Feedback de Sucesso
     showToast(id ? 'Dados atualizados com sucesso!' : 'Impressora cadastrada com sucesso!', 'success');
 
-    await loadPrinters(); // Recarrega a lista do banco
-    resetForm();          // Limpa o formulário
+    await loadPrinters(); // Recarrega a lista para atualizar os cards na tela
+    resetForm();          // Limpa o formulário e volta o título para "Adicionar"
 
   } catch (error) {
     console.error("ERRO AO SALVAR:", error);
     showToast('Erro ao salvar no banco de dados.', 'error');
   } finally {
-    setSaving(false); // Volta o botão ao estado normal
+    setSaving(false); // Garante que o botão volte ao estado normal (Salvar modelo)
   }
 }
-
 
 async function deletePrinter(id) {
   // 1. A CORREÇÃO ESTÁ AQUI: Transformamos ambos em String (texto) para comparar com segurança
