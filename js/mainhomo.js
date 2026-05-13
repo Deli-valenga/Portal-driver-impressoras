@@ -105,7 +105,27 @@ function setupEvents() {
     elements.btnCloseForm.addEventListener('click', closeForm);
   }
 
-  elements.printersGrid.addEventListener('click', event => {
+elements.printersGrid.addEventListener('click', event => {
+    
+    // --- NOVA LÓGICA DE COLAPSAR/EXPANDIR ---
+    const header = event.target.closest('.brand-group-header');
+    if (header) {
+      const targetId = header.getAttribute('data-target');
+      const contentBlock = document.getElementById(targetId);
+      const icon = header.querySelector('.toggle-icon');
+      
+      if (contentBlock.style.display === 'none') {
+        contentBlock.style.display = 'contents'; // Mostra os cards devolvendo para a grade
+        icon.style.transform = 'rotate(0deg)';   // Setinha para cima
+      } else {
+        contentBlock.style.display = 'none';     // Esconde os cards
+        icon.style.transform = 'rotate(180deg)'; // Setinha para baixo girando suavemente
+      }
+      return; // Importante para parar a execução do clique aqui
+    }
+    // -----------------------------------------
+
+    // A lógica original de clicar nos botões Editar/Excluir continua igual
     const editButton = event.target.closest('[data-action="edit"]');
     const deleteButton = event.target.closest('[data-action="delete"]');
 
@@ -117,7 +137,7 @@ function setupEvents() {
       deletePrinter(deleteButton.dataset.id);
     }
   });
-}
+
 
 // ==========================================
 // FUNÇÕES DE EXIBIÇÃO DO FORMULÁRIO
@@ -304,30 +324,24 @@ function renderPrinters() {
   if (elements.printersGrid) elements.printersGrid.style.display = hasResults ? 'grid' : 'none';
 
   if (elements.printersGrid) {
-    // 1. Cria um organizador (Objeto) para separar por marca
     const impressorasPorMarca = {};
     
     filtered.forEach(printer => {
-      // Pega a marca ou joga para "Outros" se estiver vazio
       const marca = printer.marca ? printer.marca.trim() : 'Outros';
-      
-      if (!impressorasPorMarca[marca]) {
-        impressorasPorMarca[marca] = [];
-      }
-      // Coloca a impressora na "gaveta" correta
+      if (!impressorasPorMarca[marca]) impressorasPorMarca[marca] = [];
       impressorasPorMarca[marca].push(printer);
     });
 
-    // 2. Pega o nome das marcas e organiza em ordem alfabética
     const marcasOrdenadas = Object.keys(impressorasPorMarca).sort(compareText);
-
-    // 3. Monta o HTML final com os Títulos e os Cards
     let htmlFinal = '';
 
-    marcasOrdenadas.forEach(marca => {
-      // Adiciona o título da Marca (com estilo para ocupar toda a largura da tela)
+    marcasOrdenadas.forEach((marca, index) => {
+      // 1. Cria um ID único para cada grupo de marca
+      const groupId = `grupo-marca-${index}`;
+
+      // 2. Cabeçalho (agora tem cursor: pointer e um ícone de setinha)
       htmlFinal += `
-        <div class="brand-group-header" style="grid-column: 1 / -1; margin-top: 1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">
+        <div class="brand-group-header" data-target="${groupId}" style="grid-column: 1 / -1; margin-top: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center;">
           <h3 style="margin: 0; color: #1e293b; font-size: 1.25rem; display: flex; align-items: center;">
             <i class="fa-solid fa-layer-group" style="color: #64748b; font-size: 1rem; margin-right: 8px;"></i> 
             ${escapeHtml(marca)}
@@ -335,16 +349,16 @@ function renderPrinters() {
               ${impressorasPorMarca[marca].length}
             </span>
           </h3>
+          <i class="fa-solid fa-chevron-up toggle-icon" style="color: #94a3b8; transition: transform 0.3s ease;"></i>
         </div>
       `;
       
-      // Adiciona os cards que pertencem a essa marca logo abaixo do título
-      htmlFinal += impressorasPorMarca[marca]
-        .map(printer => createPrinterCard(printer))
-        .join('');
+      // 3. O Wrapper dos cards. 'display: contents' não quebra o seu layout Grid, mas permite o JavaScript esconder tudo de uma vez.
+      htmlFinal += `<div id="${groupId}" class="brand-group-content" style="display: contents;">`;
+      htmlFinal += impressorasPorMarca[marca].map(printer => createPrinterCard(printer)).join('');
+      htmlFinal += `</div>`;
     });
 
-    // 4. Joga tudo na tela
     elements.printersGrid.innerHTML = htmlFinal;
   }
 }
@@ -405,7 +419,9 @@ function getFilteredPrinters() {
   list.sort((a, b) => {
     if (currentSort === 'marca_asc') return compareText(a.marca, b.marca) || compareText(a.modelo, b.modelo);
     if (currentSort === 'status_asc') return compareText(a.status, b.status) || compareText(a.modelo, b.modelo);
-    if (currentSort === 'recentes') return (b.created_at || 0) - (a.created_at || 0);
+    if (currentSort === 'recentes') {
+      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime(); 
+    }
     return compareText(a.modelo, b.modelo) || compareText(a.marca, b.marca);
   });
 
