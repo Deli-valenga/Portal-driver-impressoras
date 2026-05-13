@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Central de Drivers de Impressoras</title>
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
+
 <body>
 
   <!-- HEADER -->
@@ -22,10 +25,10 @@
           <span class="brand-sub">Impressoras homologadas</span>
         </div>
       </div>
-     <nav class="header-nav">
-        <a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> Início</a>
-        <a href="admin.html" class="nav-link"><i class="fa-solid fa-gear"></i> Administrar</a>
-        <a href="impshomo.html" class="nav-link active"><i class="fa-solid fa-download"></i> Drivers</a>
+      <nav class="header-nav">
+        <a href="index.html" class="nav-link active"><i class="fa-solid fa-house"></i> Início</a>
+        <a href="impshomo.html" class="nav-link"><i class="fa-solid fa-download"></i> Drivers</a>
+        <a href="admin.html" class="nav-link active"><i class="fa-solid fa-gear"></i> Administrar</a>
       </nav>
     </div>
   </header>
@@ -33,11 +36,13 @@
   <!-- HERO -->
   <section class="hero">
     <div class="container hero-inner">
-      <h1 class="hero-title">Encontre o Driver Certo<br/><span>para a sua Impressora</span></h1>
-      <p class="hero-desc">Aqui estão drivers e utilitários selecionados pelos analistas de suporte. Funcionam para maioria das situações.</p>
+      <h1 class="hero-title">Encontre o Driver Certo<br /><span>para a sua Impressora</span></h1>
+      <p class="hero-desc">Aqui estão drivers e utilitários selecionados pelos analistas de suporte. Funcionam para
+        maioria das situações.</p>
       <div class="search-bar-wrapper">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input type="text" id="searchInput" class="search-bar" placeholder="Pesquisar por modelo, marca ou sistema operacional..."/>
+        <input type="text" id="searchInput" class="search-bar"
+          placeholder="Pesquisar por modelo, marca ou sistema operacional..." />
         <button class="search-clear" id="clearSearch" title="Limpar pesquisa"><i class="fa-solid fa-xmark"></i></button>
       </div>
     </div>
@@ -54,7 +59,8 @@
           <i class="fa-solid fa-microchip"></i> Genéricas
         </button>
         <button class="filter-tab bematech" data-brand="Bematech">
-          <img src="https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/br.svg" alt="" class="brand-flag" onerror="this.style.display='none'"/>
+          <img src="https://cdn.jsdelivr.net/gh/hampusborgos/country-flags@main/svg/br.svg" alt="" class="brand-flag"
+            onerror="this.style.display='none'" />
           Bematech
         </button>
         <button class="filter-tab elgin" data-brand="Elgin">
@@ -85,7 +91,8 @@
     <div class="container">
       <!-- STATS BAR -->
       <div class="stats-bar">
-        <span id="resultsCount" class="results-count"><i class="fa-solid fa-circle-info"></i> Carregando drivers...</span>
+        <span id="resultsCount" class="results-count"><i class="fa-solid fa-circle-info"></i> Carregando
+          drivers...</span>
         <div class="sort-wrapper">
           <label for="sortSelect"><i class="fa-solid fa-arrow-up-wide-short"></i> Ordenar:</label>
           <select id="sortSelect" class="sort-select">
@@ -124,7 +131,8 @@
         <i class="fa-solid fa-print"></i>
         <span>Central de Drivers</span>
       </div>
-      <p class="footer-text">Todos os drivers são disponibilizados pelos fabricantes. Em caso de dúvidas, entre em contato com o suporte técnico.</p>
+      <p class="footer-text">Todos os drivers são disponibilizados pelos fabricantes. Em caso de dúvidas, entre em
+        contato com o suporte técnico.</p>
       <p class="footer-copy">&copy; 2026 Central de Drivers de Impressoras</p>
     </div>
   </footer>
@@ -140,10 +148,12 @@
       <a href="#" id="modalDownloadBtn" class="btn-download-modal" target="_blank" rel="noopener">
         <i class="fa-brands fa-google-drive"></i> Baixar pelo Google Drive
       </a>
-      <p class="modal-warning"><i class="fa-solid fa-shield-halved"></i> Sempre verifique o arquivo com um antivírus antes de instalar.</p>
+      <p class="modal-warning"><i class="fa-solid fa-shield-halved"></i> Sempre verifique o arquivo com um antivírus
+        antes de instalar.</p>
     </div>
   </div>
 
   <script src="js/main.js"></script>
 </body>
+
 </html>
