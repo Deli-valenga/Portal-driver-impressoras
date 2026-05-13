@@ -21,29 +21,22 @@
   --font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-html { scroll-behavior: smooth; }
-body {
-  min-height: 100vh;
-  font-family: var(--font);
-  color: var(--ink);
-  background:
-    radial-gradient(circle at top left, rgba(255, 152, 0, .16), transparent 34rem),
-    radial-gradient(circle at top right, rgba(148, 36, 166, .12), transparent 30rem),
-    linear-gradient(180deg, #fffaf2 0%, #f2f7f8 42%, #f8fafc 100%);
-  line-height: 1.55;
-}
-
 /* =========================================
-   FUNDO PÊSSEGO SUAVE
+   FUNDO PÊSSEGO - FORÇADO EM TODA A PÁGINA
    ========================================= */
-body {
-  /* Um tom pêssego muito claro e elegante */
-  background-color: #b69074 !important; 
-  
-  /* Um gradiente muito suave para dar profundidade (opcional, mas fica lindo) */
-  background-image: linear-gradient(135deg, #fff5ed 0%, #fdfbf7 100%) !important;
+html, body {
+  background-color: #ffebe0 !important; /* Um pêssego suave, mas bem visível */
+  background-image: none !important;
 }
 
+/* Deixa as secções transparentes para o pêssego do body aparecer */
+main, 
+.hero-section, 
+.quick-filters-section, 
+.content-section {
+  background-color: transparent !important;
+  background-image: none !important;
+}
 /* Se o fundo do cabeçalho ou menu também estiver muito branco e quiser suavizar: */
 .hero-section {
   background-color: transparent !important;
