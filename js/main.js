@@ -85,12 +85,11 @@ function createCardHTML(d) {
   const marca = d.marca || 'Genérica';
   const desc  = stripHTML(d.descricao || '');
 
- // 1. A LÓGICA DE DESTAQUE ENTRA AQUI, BEM ANTES DO RETURN:
-  // Verifica se o nome do driver contém a palavra "deli"
+  // 1. A LÓGICA DE DESTAQUE ENTRA AQUI:
   const isDeli = d.nome && d.nome.toLowerCase().includes('deli');
   const classeDestaque = isDeli ? 'card-deli-destaque' : '';
 
-  // 2. O RETURN GANHA A VARIÁVEL ${classeDestaque} NA CLASSE DA TAG <article>
+  // 2. O RETURN COM A VARIÁVEL NA CLASSE
   return `
     <article class="driver-card ${classeDestaque}" data-id="${d.id}" data-brand="${marca}" role="button" tabindex="0"
              aria-label="Driver ${d.nome}, marca ${marca}">
@@ -121,6 +120,7 @@ function createCardHTML(d) {
         </button>
       </div>
     </article>`;
+} // <-- A CHAVE QUE ESTAVA FALTANDO É ESTA AQUI!
 
 // ── FILTERS ───────────────────────────────────
 function getFiltered() {
@@ -143,11 +143,19 @@ function getFiltered() {
 
   // sort
   list.sort((a, b) => {
+    // REGRAS DE DESTAQUE: Força o Software Deli para o topo sempre!
+    const isDeliA = a.nome && a.nome.toLowerCase().includes('deli');
+    const isDeliB = b.nome && b.nome.toLowerCase().includes('deli');
+    
+    if (isDeliA && !isDeliB) return -1;
+    if (!isDeliA && isDeliB) return 1;
+
+    // ORDENAÇÃO NORMAL PARA O RESTANTE DOS DRIVERS
     switch (currentSort) {
       case 'nome_asc':  return (a.nome  || '').localeCompare(b.nome  || '');
       case 'nome_desc': return (b.nome  || '').localeCompare(a.nome  || '');
       case 'marca_asc': return (a.marca || '').localeCompare(b.marca || '');
-      case 'newest':    return (b.created_at || 0) - (a.created_at || 0);
+      case 'newest':    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
       default: return 0;
     }
   });
