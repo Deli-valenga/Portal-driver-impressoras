@@ -321,10 +321,15 @@ function renderPrinters() {
   }
 
   const hasResults = filtered.length > 0;
-  if (elements.emptyState) elements.emptyState.hidden = hasResults;
-  if (elements.printersGrid) elements.printersGrid.style.display = hasResults ? 'grid' : 'none';
-
+  
+  // CORREÇÃO: Força a caixa de "Nenhuma impressora" a sumir de verdade
+  if (elements.emptyState) {
+    elements.emptyState.style.display = hasResults ? 'none' : 'flex';
+  }
+  
   if (elements.printersGrid) {
+    elements.printersGrid.style.display = hasResults ? 'grid' : 'none';
+
     const impressorasPorMarca = {};
     
     filtered.forEach(printer => {
@@ -337,10 +342,8 @@ function renderPrinters() {
     let htmlFinal = '';
 
     marcasOrdenadas.forEach((marca, index) => {
-      // 1. Cria um ID único para cada grupo de marca
       const groupId = `grupo-marca-${index}`;
 
-      // 2. Cabeçalho (agora tem cursor: pointer e um ícone de setinha)
       htmlFinal += `
         <div class="brand-group-header" data-target="${groupId}" style="grid-column: 1 / -1; margin-top: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center;">
           <h3 style="margin: 0; color: #1e293b; font-size: 1.25rem; display: flex; align-items: center;">
@@ -354,7 +357,6 @@ function renderPrinters() {
         </div>
       `;
       
-      // 3. O Wrapper dos cards. 'display: contents' não quebra o seu layout Grid, mas permite o JavaScript esconder tudo de uma vez.
       htmlFinal += `<div id="${groupId}" class="brand-group-content" style="display: contents;">`;
       htmlFinal += impressorasPorMarca[marca].map(printer => createPrinterCard(printer)).join('');
       htmlFinal += `</div>`;
