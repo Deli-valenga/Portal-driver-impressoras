@@ -22,24 +22,29 @@
 }
 
 /* =========================================
-   FUNDO PÊSSEGO - FORÇADO EM TODA A PÁGINA
+   DUAS CORES DE FUNDO (TOPO E CATÁLOGO)
    ========================================= */
+
+/* 1. O fundo de toda a página (que vai aparecer na zona das impressoras) */
 html, body {
-  background-color: #ffebe0 !important; /* Um pêssego suave, mas bem visível */
+  /* Um tom creme/cinza super clarinho para destacar os cartões brancos */
+  background-color: #f8fafc !important; 
   background-image: none !important;
 }
 
-/* Deixa as secções transparentes para o pêssego do body aparecer */
-main, 
-.hero-section, 
-.quick-filters-section, 
-.content-section {
+/* 2. Garante que as áreas de baixo ficam transparentes para mostrar o fundo #f8fafc */
+main, .quick-filters-section, .content-section {
   background-color: transparent !important;
   background-image: none !important;
 }
-/* Se o fundo do cabeçalho ou menu também estiver muito branco e quiser suavizar: */
+
+/* 3. A cor EXCLUSIVA para a parte de cima (Área do Texto Gigante) */
 .hero-section {
-  background-color: transparent !important;
+  background-color: #ffebe0 !important; /* O seu tom pêssego */
+  /* Um gradiente que começa pêssego e desvanece suavemente para a divisão */
+  background-image: linear-gradient(to bottom, #ffebe0 0%, #fff2e8 100%) !important;
+  /* Uma linha fina para separar elegantemente as duas áreas */
+  border-bottom: 1px solid #fce3d4 !important; 
 }
 
 button, input, select, textarea { font: inherit; }
