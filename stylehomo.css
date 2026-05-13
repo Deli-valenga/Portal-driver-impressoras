@@ -644,3 +644,66 @@ a { color: inherit; }
   cursor: pointer;
   margin-bottom: 0; /* Remove a margem padrão das labels do form-group */
 }
+/* =========================================
+   ESTILO DOS BOTÕES SIM/NÃO (RADIO BUTTONS)
+   ========================================= */
+
+/* Alinha os botões lado a lado */
+.radio-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* 1. Esconde a "bolinha" padrão de forma acessível (permite navegação pelo teclado) */
+.radio-group input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* 2. Estiliza a tag <span> para parecer um botão moderno */
+.radio-group span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.5rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+/* 3. Efeito suave ao passar o mouse por cima */
+.radio-group label:hover span {
+  border-color: #cbd5e1;
+  background-color: #f1f5f9;
+}
+
+/* 4. Estilo VISUAL quando a opção "Sim" é clicada (Fica Verde) */
+.radio-group input[value="Sim"]:checked + span {
+  background-color: #ecfdf5;
+  border-color: #10b981;
+  color: #047857;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.1);
+}
+
+/* 5. Estilo VISUAL quando a opção "Não" é clicada (Fica Vermelho/Alerta) */
+.radio-group input[value="Não"]:checked + span {
+  background-color: #fef2f2;
+  border-color: #ef4444;
+  color: #b91c1c;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1);
+}
+
+/* 6. Acessibilidade: Contorno ao focar usando a tecla 'Tab' no teclado */
+.radio-group input[type="radio"]:focus-visible + span {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
