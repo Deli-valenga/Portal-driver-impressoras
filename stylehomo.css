@@ -725,3 +725,17 @@ a { color: inherit; }
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
+
+.hero-content .hero-highlight {
+  background-color: rgba(255, 255, 255, 0.1); /* Fundo translúcido suave */
+  border-left: 5px solid var(--orange); /* Borda laranja grossa na esquerda */
+  padding: 16px 24px; /* Espaço interno para o texto respirar */
+  border-radius: 0 12px 12px 0; /* Arredonda as bordas da direita */
+  color: #ffffff; /* Letra branca para contrastar com o fundo roxo */
+  font-weight: 500; /* Deixa a fonte levemente mais grossa */
+  font-size: clamp(16px, 2vw, 18px); /* Tamanho responsivo */
+  line-height: 1.6;
+  margin-top: 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Sombra elegante */
+  backdrop-filter: blur(4px); /* Dá um efeito de vidro fosco no fundo */
+}
