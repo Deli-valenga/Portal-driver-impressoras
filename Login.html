@@ -1,252 +1,269 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login — Central de Drivers</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
-  
-  <style>
-    :root {
-      --orange: #ff9800;
-      --orange-dark: #e88500;
-      --blue: #006480;
-      --ink: #17212b;
-      --muted: #667085;
-      --line: #e7edf1;
-      --danger: #dc2626;
-      --shadow-md: 0 18px 50px rgba(0, 0, 0, 0.25);
-      --font: 'Inter', system-ui, sans-serif;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — Central de Drivers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    <style>
+        :root {
+            --orange: #ff9800;
+            --orange-dark: #e88500;
+            --blue: #006480;
+            --ink: #17212b;
+            --muted: #667085;
+            --line: #e7edf1;
+            --danger: #dc2626;
+            --shadow-md: 0 18px 50px rgba(0, 0, 0, 0.25);
+            --font: 'Inter', system-ui, sans-serif;
+        }
 
-    body {
-      font-family: var(--font);
-      color: var(--ink);
-      background: linear-gradient(to bottom, #2c0055 0%, #6522b1 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .login-container {
-      background: #ffffff;
-      width: 100%;
-      max-width: 420px;
-      border-radius: 28px;
-      box-shadow: var(--shadow-md);
-      position: relative;
-      overflow: hidden;
-    }
+        body {
+            font-family: var(--font);
+            color: var(--ink);
+            background: linear-gradient(135deg, #ff9800 0%, #af6300 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-    .login-container::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 6px;
-      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
-    }
+        .login-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 420px;
+            border-radius: 28px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+        }
 
-    .login-header {
-      text-align: center;
-      padding: 40px 30px 20px;
-    }
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+        }
 
-    .login-header img {
-      width: 100px;
-      height: auto;
-      margin-bottom: 16px;
-    }
+        .login-header {
+            text-align: center;
+            padding: 40px 30px 20px;
+        }
 
-    .login-header h1 {
-      font-size: 24px;
-      color: var(--blue);
-      margin-bottom: 8px;
-      letter-spacing: -0.5px;
-    }
+        .login-header img {
+            width: 100px;
+            height: auto;
+            margin-bottom: 16px;
+        }
 
-    .login-header p {
-      color: var(--muted);
-      font-size: 14.5px;
-    }
+        .login-header h1 {
+            font-size: 24px;
+            color: var(--blue);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
 
-    .login-form { padding: 0 30px 40px; }
+        .login-header p {
+            color: var(--muted);
+            font-size: 14.5px;
+        }
 
-    .form-group {
-      margin-bottom: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+        .login-form {
+            padding: 0 30px 40px;
+        }
 
-    .form-group label {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--ink);
-    }
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
-    .input-wrapper { position: relative; }
+        .form-group label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ink);
+        }
 
-    .input-wrapper i {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--muted);
-    }
+        .input-wrapper {
+            position: relative;
+        }
 
-    .form-group input {
-      width: 100%;
-      min-height: 48px;
-      padding: 0 16px 0 44px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      font-family: inherit;
-      font-size: 15px;
-      color: var(--ink);
-      outline: none;
-      transition: all 0.2s ease;
-    }
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+        }
 
-    .form-group input:focus {
-      border-color: var(--orange);
-      box-shadow: 0 0 0 4px rgba(255, 152, 0, 0.12);
-    }
+        .form-group input {
+            width: 100%;
+            min-height: 48px;
+            padding: 0 16px 0 44px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 15px;
+            color: var(--ink);
+            outline: none;
+            transition: all 0.2s ease;
+        }
 
-    .btn-login {
-      width: 100%;
-      min-height: 48px;
-      margin-top: 10px;
-      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
-      color: #fff;
-      border: none;
-      border-radius: 14px;
-      font-size: 16px;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 10px 24px rgba(255, 152, 0, 0.25);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
+        .form-group input:focus {
+            border-color: var(--orange);
+            box-shadow: 0 0 0 4px rgba(255, 152, 0, 0.12);
+        }
 
-    .btn-login:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 28px rgba(255, 152, 0, 0.35);
-    }
+        .btn-login {
+            width: 100%;
+            min-height: 48px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 10px 24px rgba(255, 152, 0, 0.25);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
 
-    .back-link {
-      display: block;
-      text-align: center;
-      margin-top: 24px;
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 600;
-      transition: color 0.2s;
-    }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 28px rgba(255, 152, 0, 0.35);
+        }
 
-    .back-link:hover { color: var(--blue); }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 24px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
 
-    .error-msg {
-      color: var(--danger);
-      background: rgba(220, 38, 38, 0.1);
-      padding: 12px;
-      border-radius: 10px;
-      font-size: 14px;
-      text-align: center;
-      margin-bottom: 20px;
-      display: none;
-      font-weight: 700;
-    }
-  </style>
+        .back-link:hover {
+            color: var(--blue);
+        }
+
+        .error-msg {
+            color: var(--danger);
+            background: rgba(220, 38, 38, 0.1);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: 700;
+        }
+    </style>
 </head>
+
 <body>
 
-  <div class="login-container">
-    <div class="login-header">
-      <img src="Logo Deli.png" alt="Logo Deli" onerror="this.style.display='none'">
-      <h1>Administração de Drivers</h1>
-      <p>Exclusivo para analistas de suporte.</p>
+    <div class="login-container">
+        <div class="login-header">
+            <img src="Logo Deli.png" alt="Logo Deli" onerror="this.style.display='none'">
+            <h1>Administração de Drivers</h1>
+            <p>Exclusivo para analistas de suporte.</p>
+        </div>
+
+        <form class="login-form" id="loginForm">
+            <div class="error-msg" id="errorMsg">
+                <i class="fa-solid fa-circle-exclamation"></i> E-mail ou senha incorretos!
+            </div>
+
+            <div class="form-group">
+                <label for="username">E-mail</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="username" placeholder="Digite seu e-mail" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" placeholder="Digite sua senha" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login">
+                Entrar no Painel <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            </button>
+
+            <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Voltar para o Início</a>
+        </form>
     </div>
 
-    <form class="login-form" id="loginForm">
-      <div class="error-msg" id="errorMsg">
-        <i class="fa-solid fa-circle-exclamation"></i> E-mail ou senha incorretos!
-      </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-      <div class="form-group">
-        <label for="username">E-mail</label>
-        <div class="input-wrapper">
-          <i class="fa-solid fa-envelope"></i>
-          <input type="email" id="username" placeholder="Digite seu e-mail" required>
-        </div>
-      </div>
+    <script>
+        // Usando nomes únicos só por precaução
+        const loginSupabaseUrl = 'https://kvlzaigjcbjfhfbmsmfw.supabase.co';
+        const loginSupabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bHphaWdqY2JqZmhmYm1zbWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0Njc4MTAsImV4cCI6MjA5NDA0MzgxMH0.FyfXGEzd2vSpRJ7F8-zm-5IxSgzA_8q4gB52__vKZ4c';
+        const supabaseClient = window.supabase.createClient(loginSupabaseUrl, loginSupabaseKey);
 
-      <div class="form-group">
-        <label for="password">Senha</label>
-        <div class="input-wrapper">
-          <i class="fa-solid fa-lock"></i>
-          <input type="password" id="password" placeholder="Digite sua senha" required>
-        </div>
-      </div>
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
 
-      <button type="submit" class="btn-login">
-        Entrar no Painel <i class="fa-solid fa-arrow-right-to-bracket"></i>
-      </button>
+            const email = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            const btn = document.querySelector('.btn-login');
 
-      <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Voltar para o Início</a>
-    </form>
-  </div>
+            // Feedback visual de carregamento
+            const btnTextoOriginal = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Entrando...';
+            btn.disabled = true;
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <script>
-    const supabaseUrl = 'https://kvlzaigjcbjfhfbmsmfw.supabase.co';
-    const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bHphaWdqY2JqZmhmYm1zbWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0Njc4MTAsImV4cCI6MjA5NDA0MzgxMH0.FyfXGEzd2vSpRJ7F8-zm-5IxSgzA_8q4gB52__vKZ4c';
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+            // Chama o banco de dados usando a variável única
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
 
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-      e.preventDefault(); 
-      
-      const email = document.getElementById('username').value; 
-      const password = document.getElementById('password').value;
-      const errorMsg = document.getElementById('errorMsg');
-      const btn = document.querySelector('.btn-login');
+            if (error) {
+                errorMsg.style.display = 'block';
+                errorMsg.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> ' + (error.message === 'Invalid login credentials' ? 'E-mail ou senha incorretos!' : error.message);
 
-      // Feedback visual de carregamento
-      const btnTextoOriginal = btn.innerHTML;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Entrando...';
-      btn.disabled = true;
+                errorMsg.animate([
+                    { transform: 'translateX(0)' }, { transform: 'translateX(-5px)' },
+                    { transform: 'translateX(5px)' }, { transform: 'translateX(0)' }
+                ], { duration: 300 });
 
-      // Chama o banco de dados
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-      });
-
-      if (error) {
-        errorMsg.style.display = 'block';
-        errorMsg.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> ' + (error.message === 'Invalid login credentials' ? 'E-mail ou senha incorretos!' : error.message);
-        
-        errorMsg.animate([
-          { transform: 'translateX(0)' }, { transform: 'translateX(-5px)' },
-          { transform: 'translateX(5px)' }, { transform: 'translateX(0)' }
-        ], { duration: 300 });
-
-        btn.innerHTML = btnTextoOriginal;
-        btn.disabled = false;
-      } else {
-        // Se der certo, redireciona para a sala do cofre!
-        window.location.href = 'admin.html';
-      }
-    });
-  </script>
+                btn.innerHTML = btnTextoOriginal;
+                btn.disabled = false;
+            } else {
+                // Sucesso! Redireciona para o admin
+                window.location.href = 'admin.html';
+            }
+        });
+    </script>
 </body>
+
 </html>
