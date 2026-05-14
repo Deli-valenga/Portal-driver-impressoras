@@ -8,7 +8,12 @@
   <link rel="stylesheet" href="style.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body { display: none; }
+  </style>
 
   <script>
     const supabaseUrl = 'https://kvlzaigjcbjfhfbmsmfw.supabase.co';
@@ -20,12 +25,15 @@
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        // Expulsa para o login se não tiver logado no Supabase
-        window.location.href = 'Login.html';
+        // Se NÃO estiver logado, redireciona pro arquivo login.html (tudo minúsculo)
+        window.location.replace('login.html'); 
+      } else {
+        // Se ESTIVER logado, revela a página
+        document.body.style.display = 'block';
       }
     }
     
-    // Executa a proteção imediatamente
+    // Executa a proteção imediatamente antes do HTML terminar de carregar
     checkAuth();
   </script>
 </head>
