@@ -43,14 +43,6 @@ main, .quick-filters-section, .content-section {
   background-image: none !important;
 }
 
-/* 3. A cor EXCLUSIVA para a parte de cima (Área do Texto Gigante) */
-.hero-section {
-  font-family: var(--font) !important;
-  background-color: #e396fd !important; /* O tom pêssego */
-  background-image: linear-gradient(to bottom, #2c0055 0%, #6522b1 100%) !important;
-  border-bottom: 1px solid #fce3d4 !important; 
-}
-
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 a { color: inherit; }
@@ -136,12 +128,12 @@ a { color: inherit; }
 .header-link:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
 .header-link-primary { color: #fff; border-color: transparent; background: linear-gradient(135deg, var(--blue), var(--purple)); }
 
-.hero-section { padding: 76px 0 46px; overflow: hidden; }
 .hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr);
   gap: 34px;
   align-items: center;
+  background-size:auto;
 }
 
 .eyebrow {
@@ -157,20 +149,39 @@ a { color: inherit; }
   font-weight: 800;
   font-size: 13px;
 }
-
+/* 1. Destaque do Título Gigante */
 .hero-content h1 {
   max-width: 820px;
   font-size: clamp(34px, 6vw, 68px);
-  line-height: .98;
+  line-height: 1.1; 
   letter-spacing: -2.7px;
   color: var(--orange-dark);
+  margin-bottom: 20px; /* Adiciona um espaço entre as duas caixas */
+  
+  /* Efeito Visual */
+  background-color: rgba(255, 255, 255, 0.08); 
+  border-left: 8px solid var(--orange); /* Borda mais grossa no título */
+  padding: 24px 32px; 
+  border-radius: 0 16px 16px 0; 
+  backdrop-filter: blur(4px); 
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
 }
 
+/* 2. Destaque do Parágrafo Abaixo */
 .hero-content p {
   max-width: 690px;
-  margin-top: 22px;
-  color: var(--muted);
+  color: #ffffff; /* Letra branca para ler bem no fundo roxo */
   font-size: clamp(16px, 2vw, 20px);
+  line-height: 1.6;
+  font-weight: 500;
+  
+  /* Efeito Visual */
+  background-color: rgba(255, 255, 255, 0.1); 
+  border-left: 5px solid var(--orange); /* Borda um pouco mais fina no texto */
+  padding: 16px 24px; 
+  border-radius: 0 12px 12px 0; 
+  backdrop-filter: blur(4px); 
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); 
 }
 
 .hero-search {
@@ -244,6 +255,25 @@ a { color: inherit; }
   border-radius: var(--radius);
   background: rgba(255, 255, 255, .82);
   box-shadow: var(--shadow-sm);
+}
+
+/* =========================================
+   HERO SECTION UNIFICADA E CORRIGIDA
+   ========================================= */
+.hero-section {
+  /* 1. Configurações gerais e de espaçamento */
+  font-family: var(--font) !important;
+  padding: 76px 0 46px; 
+  overflow: hidden;
+  border-bottom: 1px solid #fce3d4 !important; 
+  background-color: #2c0055; /* Cor de segurança caso a imagem demore a carregar */
+
+  /* 2. Configurações da sua imagem de fundo */
+  /* Coloquei o !important aqui para garantir que nada passe por cima dela */
+  background-image: url("css homo/images/fundohomo.png") !important; 
+  background-size: cover; 
+  background-position: center; 
+  background-repeat: no-repeat; 
 }
 
 .total-card {
