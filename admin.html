@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Administrar Drivers — Central de Drivers</title>
-  
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style id="bloqueio-ecra">
-    body { display: none !important; }
+    body {
+      display: none !important;
+    }
   </style>
 
   <script>
     // Variáveis com nomes únicos para não entrarem em conflito com o ficheiro admin.js
     const urlSeguranca = 'https://kvlzaigjcbjfhfbmsmfw.supabase.co';
     const keySeguranca = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bHphaWdqY2JqZmhmYm1zbWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0Njc4MTAsImV4cCI6MjA5NDA0MzgxMH0.FyfXGEzd2vSpRJ7F8-zm-5IxSgzA_8q4gB52__vKZ4c';
-    
+
     try {
       const supabaseSeguranca = window.supabase.createClient(urlSeguranca, keySeguranca);
 
@@ -27,10 +31,10 @@
         try {
           // Vai ao banco de dados verificar a sessão
           const { data: { session }, error } = await supabaseSeguranca.auth.getSession();
-          
+
           if (!session || error) {
             // Se não houver sessão válida, redireciona para o Login
-            window.location.replace('Login.html'); 
+            window.location.replace('Login.html');
           } else {
             // Se o login for válido, aguarda que o HTML carregue e remove o bloqueio visual
             document.addEventListener('DOMContentLoaded', () => {
@@ -43,7 +47,7 @@
           window.location.replace('Login.html');
         }
       }
-      
+
       validarSessao();
     } catch (erroCritico) {
       // Caso a própria inicialização do Supabase falhe
@@ -51,6 +55,7 @@
     }
   </script>
 </head>
+
 <body>
 
   <header class="site-header">
@@ -66,7 +71,8 @@
         <a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> Início</a>
         <a href="impshomo.html" class="nav-link"><i class="fa-solid fa-download"></i> Drivers</a>
         <a href="admin.html" class="nav-link active"><i class="fa-solid fa-gear"></i> Administrar</a>
-        <a href="#" class="nav-link" style="color: var(--danger);" onclick="sairDoAdmin()"><i class="fa-solid fa-right-from-bracket"></i> Sair</a>
+        <a href="#" class="nav-link" style="color: var(--danger);" onclick="sairDoAdmin()"><i
+            class="fa-solid fa-right-from-bracket"></i> Sair</a>
       </nav>
     </div>
   </header>
@@ -133,7 +139,7 @@
       <div class="admin-table-wrap">
         <div class="admin-table-header">
           <h2><i class="fa-solid fa-table-list"></i> Lista de Drivers</h2>
-          <input type="text" class="admin-search" id="adminSearch" placeholder="🔍 Filtrar por nome, marca..."/>
+          <input type="text" class="admin-search" id="adminSearch" placeholder="🔍 Filtrar por nome, marca..." />
         </div>
 
         <div id="tableContainer">
@@ -161,11 +167,11 @@
       <h2 id="formTitle"><i class="fa-solid fa-plus"></i> Adicionar Driver</h2>
 
       <form id="driverForm" novalidate>
-        <input type="hidden" id="fieldId"/>
+        <input type="hidden" id="fieldId" />
         <div class="form-grid">
           <div class="form-group full">
             <label for="fieldNome">Nome do Driver <span style="color:#e63946">*</span></label>
-            <input type="text" id="fieldNome" placeholder="Ex: Driver Térmica 80mm Universal" required/>
+            <input type="text" id="fieldNome" placeholder="Ex: Driver Térmica 80mm Universal" required />
           </div>
           <div class="form-group">
             <label for="fieldMarca">Marca <span style="color:#e63946">*</span></label>
@@ -180,7 +186,7 @@
           </div>
           <div class="form-group">
             <label for="fieldModelo">Modelo</label>
-            <input type="text" id="fieldModelo" placeholder="Ex: MP-4200 TH"/>
+            <input type="text" id="fieldModelo" placeholder="Ex: MP-4200 TH" />
           </div>
           <div class="form-group">
             <label for="fieldSO">Sistema Operacional</label>
@@ -197,22 +203,25 @@
           </div>
           <div class="form-group">
             <label for="fieldVersao">Versão</label>
-            <input type="text" id="fieldVersao" placeholder="Ex: 3.0.1"/>
+            <input type="text" id="fieldVersao" placeholder="Ex: 3.0.1" />
           </div>
           <div class="form-group full">
             <label for="fieldLink">Link do Google Drive <span style="color:#e63946">*</span></label>
-            <input type="url" id="fieldLink" placeholder="https://drive.google.com/file/d/XXXX/view?usp=sharing" required/>
-            <span class="hint"><i class="fa-brands fa-google-drive"></i> Cole o link de compartilhamento do Google Drive. O sistema converte automaticamente para link de download.</span>
+            <input type="url" id="fieldLink" placeholder="https://drive.google.com/file/d/XXXX/view?usp=sharing"
+              required />
+            <span class="hint"><i class="fa-brands fa-google-drive"></i> Cole o link de compartilhamento do Google
+              Drive. O sistema converte automaticamente para link de download.</span>
           </div>
           <div class="form-group full">
             <label for="fieldDesc">Descrição</label>
-            <textarea id="fieldDesc" placeholder="Descreva o driver, compatibilidade, instruções de instalação..."></textarea>
+            <textarea id="fieldDesc"
+              placeholder="Descreva o driver, compatibilidade, instruções de instalação..."></textarea>
           </div>
           <div class="form-group full">
             <label>Status</label>
             <div class="toggle-wrap">
               <label class="toggle">
-                <input type="checkbox" id="fieldAtivo" checked/>
+                <input type="checkbox" id="fieldAtivo" checked />
                 <span class="toggle-slider"></span>
               </label>
               <span id="toggleLabel">Ativo (visível no site)</span>
@@ -234,7 +243,8 @@
     <div class="form-modal" style="max-width:420px; text-align:center;">
       <div style="font-size:52px; margin-bottom:16px;">🗑️</div>
       <h2 style="justify-content:center; margin-bottom:8px;">Excluir Driver</h2>
-      <p style="color:var(--text-muted); margin-bottom:28px;">Tem certeza que deseja excluir <strong id="deleteDriverName"></strong>? Esta ação não pode ser desfeita.</p>
+      <p style="color:var(--text-muted); margin-bottom:28px;">Tem certeza que deseja excluir <strong
+          id="deleteDriverName"></strong>? Esta ação não pode ser desfeita.</p>
       <div style="display:flex; gap:12px; justify-content:center;">
         <button class="btn-cancel" id="btnCancelDelete">Cancelar</button>
         <button class="btn-danger" id="btnConfirmDelete" style="padding:10px 24px; font-size:14px;">
@@ -246,14 +256,37 @@
 
   <script>
     async function sairDoAdmin() {
-      // Destrói a sessão no banco de dados do Supabase
-      await supabase.auth.signOut();
-      // Redireciona para o login
-      window.location.href = 'login.html';
+      try {
+        // 1. Tenta encontrar qualquer instância do Supabase que esteja rodando na página
+        // Se você usou o código da "trava de segurança" anterior, o nome é urlSeguranca
+        const urlSair = 'https://kvlzaigjcbjfhfbmsmfw.supabase.co';
+        const keySair = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bHphaWdqY2JqZmhmYm1zbWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0Njc4MTAsImV4cCI6MjA5NDA0MzgxMH0.FyfXGEzd2vSpRJ7F8-zm-5IxSgzA_8q4gB52__vKZ4c';
+
+        const supabaseSair = window.supabase.createClient(urlSair, keySair);
+
+        // 2. Avisa o banco de dados para encerrar a sessão
+        await supabaseSair.auth.signOut();
+
+        // 3. Limpa qualquer rastro de login que tenha ficado no navegador
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // 4. Manda para a tela de Login (respeitando o L maiúsculo para o Render)
+        window.location.replace('Login.html');
+
+      } catch (error) {
+        console.error("Erro ao sair:", error);
+        // Mesmo se der erro no Supabase, forçamos a saída para o login
+        window.location.replace('Login.html');
+      }
     }
+
+    // Garante que a função esteja disponível para o clique do botão
+    window.sairDoAdmin = sairDoAdmin;
   </script>
 
   <script src="js/admin.js"></script>
 
 </body>
+
 </html>
