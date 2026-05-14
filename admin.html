@@ -1,29 +1,25 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
+  
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Administrar Drivers — Central de Drivers</title>
-
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet" />
-
+  
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style id="bloqueio-ecra">
-    body {
-      display: none !important;
-    }
+    body { display: none !important; }
   </style>
 
   <script>
-    // Variáveis com nomes únicos para não entrarem em conflito com o ficheiro admin.js
     const urlSeguranca = 'https://kvlzaigjcbjfhfbmsmfw.supabase.co';
     const keySeguranca = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bHphaWdqY2JqZmhmYm1zbWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0Njc4MTAsImV4cCI6MjA5NDA0MzgxMH0.FyfXGEzd2vSpRJ7F8-zm-5IxSgzA_8q4gB52__vKZ4c';
-
+    
     try {
       const supabaseSeguranca = window.supabase.createClient(urlSeguranca, keySeguranca);
 
@@ -31,26 +27,25 @@
         try {
           // Vai ao banco de dados verificar a sessão
           const { data: { session }, error } = await supabaseSeguranca.auth.getSession();
-
+          
           if (!session || error) {
             // Se não houver sessão válida, redireciona para o Login
-            window.location.replace('Login.html');
+            window.location.replace('Login.html'); 
           } else {
-            // Se o login for válido, aguarda que o HTML carregue e remove o bloqueio visual
-            document.addEventListener('DOMContentLoaded', () => {
-              const bloqueio = document.getElementById('bloqueio-ecra');
-              if (bloqueio) bloqueio.remove();
-            });
+            // Se o login for válido, remove o bloqueio IMEDIATAMENTE (resolve o problema da tela branca)
+            const bloqueio = document.getElementById('bloqueio-ecra');
+            if (bloqueio) bloqueio.remove();
+            
+            // Garantia extra forçando a exibição do body
+            document.body.style.display = 'block';
           }
         } catch (erro) {
-          // Qualquer erro de rede ou na leitura da sessão força o redirecionamento
           window.location.replace('Login.html');
         }
       }
-
+      
       validarSessao();
     } catch (erroCritico) {
-      // Caso a própria inicialização do Supabase falhe
       window.location.replace('Login.html');
     }
   </script>
