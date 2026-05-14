@@ -12,7 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    body { display: none; }
+    html { visibility: hidden; }
   </style>
 
   <script>
@@ -20,20 +20,19 @@
     const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bHphaWdqY2JqZmhmYm1zbWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0Njc4MTAsImV4cCI6MjA5NDA0MzgxMH0.FyfXGEzd2vSpRJ7F8-zm-5IxSgzA_8q4gB52__vKZ4c';
     const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
 
-    // Verifica se a sessão é válida no banco de dados
     async function checkAuth() {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        // Se NÃO estiver logado, redireciona pro arquivo login.html (tudo minúsculo)
-        window.location.replace('login.html'); 
+        // Redireciona para o login (Atenção ao L maiúsculo, já deixei ajustado!)
+        window.location.replace('Login.html'); 
       } else {
-        // Se ESTIVER logado, revela a página
-        document.body.style.display = 'block';
+        // Se estiver logado, revela a página
+        document.documentElement.style.visibility = 'visible';
       }
     }
     
-    // Executa a proteção imediatamente antes do HTML terminar de carregar
+    // Executa a proteção
     checkAuth();
   </script>
 </head>
