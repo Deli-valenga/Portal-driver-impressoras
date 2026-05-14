@@ -4,15 +4,33 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Administrar Drivers — Central de Drivers</title>
+  
   <link rel="stylesheet" href="style.css"/>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const supabaseUrl = 'https://kvlzaigjcbjfhfbmsmfw.supabase.co';
+    const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bHphaWdqY2JqZmhmYm1zbWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0Njc4MTAsImV4cCI6MjA5NDA0MzgxMH0.FyfXGEzd2vSpRJ7F8-zm-5IxSgzA_8q4gB52__vKZ4c';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+    // Verifica se a sessão é válida no banco de dados
+    async function checkAuth() {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // Expulsa para o login se não tiver logado no Supabase
+        window.location.href = 'login.html';
+      }
+    }
+    
+    // Executa a proteção imediatamente
+    checkAuth();
+  </script>
 </head>
 <body>
 
-  <!-- HEADER -->
   <header class="site-header">
     <div class="container header-inner">
       <div class="brand">
@@ -26,11 +44,11 @@
         <a href="index.html" class="nav-link"><i class="fa-solid fa-house"></i> Início</a>
         <a href="impshomo.html" class="nav-link"><i class="fa-solid fa-download"></i> Drivers</a>
         <a href="admin.html" class="nav-link active"><i class="fa-solid fa-gear"></i> Administrar</a>
+        <a href="#" class="nav-link" style="color: var(--danger);" onclick="sairDoAdmin()"><i class="fa-solid fa-right-from-bracket"></i> Sair</a>
       </nav>
     </div>
   </header>
 
-  <!-- ADMIN HERO -->
   <section class="admin-hero">
     <div class="container">
       <div class="admin-hero-text">
@@ -43,11 +61,8 @@
     </div>
   </section>
 
-  <!-- ADMIN CONTENT -->
   <main class="admin-content">
     <div class="container">
-
-      <!-- STATS CARDS -->
       <div class="admin-stats" id="adminStats">
         <div class="stat-card">
           <div class="stat-icon" style="background:#eff6ff; color:#2563eb"><i class="fa-solid fa-layer-group"></i></div>
@@ -93,7 +108,6 @@
         </div>
       </div>
 
-      <!-- TABLE -->
       <div class="admin-table-wrap">
         <div class="admin-table-header">
           <h2><i class="fa-solid fa-table-list"></i> Lista de Drivers</h2>
@@ -110,7 +124,6 @@
     </div>
   </main>
 
-  <!-- FOOTER -->
   <footer class="site-footer">
     <div class="container footer-inner">
       <div class="footer-brand">
@@ -121,7 +134,6 @@
     </div>
   </footer>
 
-  <!-- FORM MODAL -->
   <div class="form-overlay" id="formOverlay" style="display:none;">
     <div class="form-modal">
       <h2 id="formTitle"><i class="fa-solid fa-plus"></i> Adicionar Driver</h2>
@@ -129,14 +141,10 @@
       <form id="driverForm" novalidate>
         <input type="hidden" id="fieldId"/>
         <div class="form-grid">
-
-          <!-- Nome -->
           <div class="form-group full">
             <label for="fieldNome">Nome do Driver <span style="color:#e63946">*</span></label>
             <input type="text" id="fieldNome" placeholder="Ex: Driver Térmica 80mm Universal" required/>
           </div>
-
-          <!-- Marca -->
           <div class="form-group">
             <label for="fieldMarca">Marca <span style="color:#e63946">*</span></label>
             <select id="fieldMarca" required>
@@ -148,14 +156,10 @@
               <option value="ControliD">ControliD</option>
             </select>
           </div>
-
-          <!-- Modelo -->
           <div class="form-group">
             <label for="fieldModelo">Modelo</label>
             <input type="text" id="fieldModelo" placeholder="Ex: MP-4200 TH"/>
           </div>
-
-          <!-- Sistema Operacional -->
           <div class="form-group">
             <label for="fieldSO">Sistema Operacional</label>
             <select id="fieldSO">
@@ -169,27 +173,19 @@
               <option value="Todos">Todos</option>
             </select>
           </div>
-
-          <!-- Versão -->
           <div class="form-group">
             <label for="fieldVersao">Versão</label>
             <input type="text" id="fieldVersao" placeholder="Ex: 3.0.1"/>
           </div>
-
-          <!-- Link Google Drive -->
           <div class="form-group full">
             <label for="fieldLink">Link do Google Drive <span style="color:#e63946">*</span></label>
             <input type="url" id="fieldLink" placeholder="https://drive.google.com/file/d/XXXX/view?usp=sharing" required/>
             <span class="hint"><i class="fa-brands fa-google-drive"></i> Cole o link de compartilhamento do Google Drive. O sistema converte automaticamente para link de download.</span>
           </div>
-
-          <!-- Descrição -->
           <div class="form-group full">
             <label for="fieldDesc">Descrição</label>
             <textarea id="fieldDesc" placeholder="Descreva o driver, compatibilidade, instruções de instalação..."></textarea>
           </div>
-
-          <!-- Ativo -->
           <div class="form-group full">
             <label>Status</label>
             <div class="toggle-wrap">
@@ -200,7 +196,6 @@
               <span id="toggleLabel">Ativo (visível no site)</span>
             </div>
           </div>
-
         </div>
 
         <div class="form-actions">
@@ -213,7 +208,6 @@
     </div>
   </div>
 
-  <!-- CONFIRM DELETE MODAL -->
   <div class="form-overlay" id="confirmOverlay" style="display:none;">
     <div class="form-modal" style="max-width:420px; text-align:center;">
       <div style="font-size:52px; margin-bottom:16px;">🗑️</div>
@@ -228,6 +222,16 @@
     </div>
   </div>
 
+  <script>
+    async function sairDoAdmin() {
+      // Destrói a sessão no banco de dados do Supabase
+      await supabase.auth.signOut();
+      // Redireciona para o login
+      window.location.href = 'login.html';
+    }
+  </script>
+
   <script src="js/admin.js"></script>
+
 </body>
 </html>
