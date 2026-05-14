@@ -11,29 +11,44 @@
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    html { visibility: hidden; }
+  <style id="bloqueio-ecra">
+    body { display: none !important; }
   </style>
 
   <script>
-    const supabaseUrl = 'https://kvlzaigjcbjfhfbmsmfw.supabase.co';
-    const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bHphaWdqY2JqZmhmYm1zbWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0Njc4MTAsImV4cCI6MjA5NDA0MzgxMH0.FyfXGEzd2vSpRJ7F8-zm-5IxSgzA_8q4gB52__vKZ4c';
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
-
-    async function checkAuth() {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        // Redireciona para o login (Atenção ao L maiúsculo, já deixei ajustado!)
-        window.location.replace('Login.html'); 
-      } else {
-        // Se estiver logado, revela a página
-        document.documentElement.style.visibility = 'visible';
-      }
-    }
+    // Variáveis com nomes únicos para não entrarem em conflito com o ficheiro admin.js
+    const urlSeguranca = 'https://kvlzaigjcbjfhfbmsmfw.supabase.co';
+    const keySeguranca = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2bHphaWdqY2JqZmhmYm1zbWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0Njc4MTAsImV4cCI6MjA5NDA0MzgxMH0.FyfXGEzd2vSpRJ7F8-zm-5IxSgzA_8q4gB52__vKZ4c';
     
-    // Executa a proteção
-    checkAuth();
+    try {
+      const supabaseSeguranca = window.supabase.createClient(urlSeguranca, keySeguranca);
+
+      async function validarSessao() {
+        try {
+          // Vai ao banco de dados verificar a sessão
+          const { data: { session }, error } = await supabaseSeguranca.auth.getSession();
+          
+          if (!session || error) {
+            // Se não houver sessão válida, redireciona para o Login
+            window.location.replace('Login.html'); 
+          } else {
+            // Se o login for válido, aguarda que o HTML carregue e remove o bloqueio visual
+            document.addEventListener('DOMContentLoaded', () => {
+              const bloqueio = document.getElementById('bloqueio-ecra');
+              if (bloqueio) bloqueio.remove();
+            });
+          }
+        } catch (erro) {
+          // Qualquer erro de rede ou na leitura da sessão força o redirecionamento
+          window.location.replace('Login.html');
+        }
+      }
+      
+      validarSessao();
+    } catch (erroCritico) {
+      // Caso a própria inicialização do Supabase falhe
+      window.location.replace('Login.html');
+    }
   </script>
 </head>
 <body>
