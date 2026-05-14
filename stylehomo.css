@@ -270,7 +270,7 @@ a { color: inherit; }
 
   /* 2. Configurações da sua imagem de fundo */
   /* Coloquei o !important aqui para garantir que nada passe por cima dela */
-  background-image: url("css homo/images/fundohomo.png") !important; 
+  background-image: url("css homo/images/Fundohomo.png") !important; 
   background-size: cover; 
   background-position: center; 
   background-repeat: no-repeat; 
